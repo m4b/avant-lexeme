@@ -22,7 +22,7 @@
 
 %include polycode.fmt
 
-\title{CS454 Project 1:\\« Lexer Generator »\\}
+\title{CS454 Project 1:\\« Lexer Analysis »\\}
 \author{\textsc{M. Barney, J. Conrad, and S. Patel}}
 \date{\today}
 
@@ -31,7 +31,9 @@
 
 \section{Introduction}
 
-Implementation of a lexer generator in Haskell.
+This is the final report for project 1, CS454, for lexical analysis.
+
+Our first design decision was to use Haskell's literate mode to prepare all of our code.  Secondly, we decided to use the distributed revision control software \verb=git= for collaborative coding.
 
 %include FiniteStateAutomata.lhs
 %include Regex.lhs
@@ -42,6 +44,11 @@ Implementation of a lexer generator in Haskell.
 \begin{code}
 
 module Main where
+
+import FiniteStateAutomata
+import Regex
+--import Algorithms
+
 
 main =
      putStrLn "((λ.x x) helloworld)"
