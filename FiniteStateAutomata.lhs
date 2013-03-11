@@ -6,22 +6,25 @@ module FiniteStateAutomata(Transition(),
                            newNode,
                            newFSA) where
 
-data Transition a = Transition {getLabel :: a, getNode :: Node a} 
-                  | EpsilonT {getNode :: Node a}
+import qualified Data.HashMap.Strict as M
 
-data Node a = Node {iD :: Int, isAccepting :: Bool, getTransitions :: [Transition a]}
+data Transition a = Transition {getLabel :: a, transition :: Int} 
+                  | EpsilonT {transition :: Int}
 
-data FSA a = FSA {getStart :: Node a}
+data Node a = Node {isAccepting :: Bool, getTransitions :: [Transition a]}
 
-newTransition :: (Eq a, Show a) => a -> Node a -> Transition a
+data FSA a = FSA {nodes :: M.HashMap Int (Node a),
+                  start :: Int }
+
+newTransition :: (Eq a, Show a) => a -> Int -> Transition a
 newTransition = Transition
 
-newEpsilonT :: (Eq a, Show a) => Node a -> Transition a
+newEpsilonT :: (Eq a, Show a) => Int -> Transition a
 newEpsilonT = EpsilonT
 
-newNode :: (Eq a, Show a) => Int -> Bool -> [Transition a] -> Node a
+newNode :: (Eq a, Show a) => Bool -> [Transition a] -> Node a
 newNode = Node
 
-newFSA :: (Eq a, Show a) => Node a -> FSA a
+newFSA :: (Eq a, Show a) => M.HashMap Int (Node a) -> Int -> FSA a
 newFSA = FSA
 \end{code}
