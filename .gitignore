@@ -7,3 +7,9 @@ cabal-dev
 .virthualenv
 *~
 *#
+*.aux
+*.log
+*.out
+*.ptb
+*.tex
+

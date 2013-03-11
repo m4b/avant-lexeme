@@ -5,8 +5,10 @@
 \setmainfont[Ligatures=TeX]{Linux Libertine O}
 \newfontfamily\fallbackfont{DejaVu Sans}
 
-%\usepackage{newunicodechar}
+\usepackage{newunicodechar}
 %\newunicodechar{☣}{{\fallbackfont ☣}}
+\newunicodechar{«}{{\fallbackfont «}}
+\newunicodechar{»}{{\fallbackfont »}}
 %\newunicodechar{ε}{{\fallbackfont ε}}
 
 % \usepackage[sc]{mathpazo}
@@ -20,7 +22,7 @@
 
 %include polycode.fmt
 
-\title{CS454 Project 1:\\☣ Lexer Generator ☣\\}
+\title{CS454 Project 1:\\« Lexer Generator »\\}
 \author{\textsc{M. Barney, J. Conrad, and S. Patel}}
 \date{\today}
 
@@ -31,8 +33,9 @@
 
 Implementation of a lexer generator in Haskell.
 
-%include Parselib.lhs
-%include BasicGrammar.lhs
+%include FiniteStateAutomata.lhs
+%include Regex.lhs
+% include Algorithms.lhs
 
 \section{Module: Main.lhs}
 
@@ -44,3 +47,5 @@ main =
      putStrLn "((λ.x x) helloworld)"
 
 \end{code}
+
+\end{document}
