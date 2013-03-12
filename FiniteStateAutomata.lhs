@@ -1,29 +1,26 @@
-\begin{code}
-module FiniteStateAutomata(Transition(),
+(Transition(),
                            Node(),
                            FSA(),
                            newTransition,
                            newNode,
-                           newFSA) where
+                           newFSA) 
+\begin{code}
+module FiniteStateAutomata where
 
-import qualified Data.HashMap.Strict as M
+import qualified Data.Map as M
 
 data Transition a = Transition {getLabel :: a, transition :: Int} 
-                  | EpsilonT {transition :: Int}
+                  | EpsilonT {transition :: Int} deriving Show
 
-data Node a = Node {isAccepting :: Bool, getTransitions :: [Transition a]}
+data Node a = Node {isAccepting :: Bool, getTransitions :: [Transition a]} deriving Show
 
-data FSA a = FSA {nodes :: M.HashMap Int (Node a),
-                  start :: Int }
-             
-instance (Show a) => Show (FSA a) where
-  show (FSA nodes start) = "FSA "
 
-simpleFSA = FSA nodes 0 where
-  nodes = M.fromList [(0, n0), (1, n1), (2, n2)]
-  n0 = Node False [Transition 'a' 1]
-  n1 = Node False [Transition 'b' 0, EpsilonT 2]
-  n2 = Node True []
+
+
+data FSA a = FSA {nodes :: M.Map Int (Node a),
+                  start :: Int
+                  } deriving Show
+
 
 newTransition :: (Eq a, Show a) => a -> Int -> Transition a
 newTransition = Transition
@@ -34,6 +31,48 @@ newEpsilonT = EpsilonT
 newNode :: (Eq a, Show a) => Bool -> [Transition a] -> Node a
 newNode = Node
 
-newFSA :: (Eq a, Show a) => M.HashMap Int (Node a) -> Int -> FSA a
+newFSA :: (Eq a, Show a) => M.Map Int (Node a) -> Int -> FSA a
 newFSA = FSA
+
+-- NEW -------------------------
+
+data DFA a = DFA {q :: [Int],
+              sigma :: [a],
+              delta :: M.Map (Int,a) Int,
+              q0 :: Int,
+              f :: [Int]
+              } deriving Show
+
+data Trans = Epsilon | Q Int deriving Show
+
+data NFA a = NFA {nq :: [Int],
+              nsigma :: [a],
+              ndelta :: M.Map (Trans,a) Int,
+              nq0 :: Int,
+              nf :: [Int]
+              } deriving Show
+
+dfa1 = DFA 
+         [0,1,2,3,4,5,6,7]
+         ["a","b"]
+         d
+         0
+         [0,6]
+         where  
+         d = M.fromList [
+              ((0,"a"),1),
+              ((1,"a"),4),
+              ((1,"b"),2),
+              ((2,"a"),3),
+              ((2,"b"),5),
+              ((3,"b"),1),
+              ((4,"a"),6),
+              ((4,"b"),5),
+              ((5,"a"),7),
+              ((5,"b"),2),
+              ((6,"a"),5),
+              ((7,"b"),5)]
+
+
+
 \end{code}
