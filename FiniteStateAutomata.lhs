@@ -8,19 +8,21 @@
 module FiniteStateAutomata where
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 data Transition a = Transition {getLabel :: a, transition :: Int} 
                   | EpsilonT {transition :: Int} deriving Show
 
-data Node a = Node {isAccepting :: Bool, getTransitions :: [Transition a]} deriving Show
+data Node a = Node {isAccepting    :: Bool, 
+                    getTransitions :: [Transition a]} deriving Show
 
-
-
-
-data FSA a = FSA {nodes :: M.Map Int (Node a),
-                  start :: Int
+data FSA a = FSA {alphabet :: S.Set a,
+                  nodes    :: M.Map Int (Node a),
+                  start    :: Int
                   } deriving Show
 
+type DFA' a = FSA a
+type NFA' a = FSA a
 
 newTransition :: (Eq a, Show a) => a -> Int -> Transition a
 newTransition = Transition
@@ -31,7 +33,7 @@ newEpsilonT = EpsilonT
 newNode :: (Eq a, Show a) => Bool -> [Transition a] -> Node a
 newNode = Node
 
-newFSA :: (Eq a, Show a) => M.Map Int (Node a) -> Int -> FSA a
+newFSA :: (Eq a, Show a) => S.Set a -> M.Map Int (Node a) -> Int -> FSA a
 newFSA = FSA
 
 -- NEW -------------------------
