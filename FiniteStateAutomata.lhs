@@ -15,6 +15,15 @@ data Node a = Node {isAccepting :: Bool, getTransitions :: [Transition a]}
 
 data FSA a = FSA {nodes :: M.HashMap Int (Node a),
                   start :: Int }
+             
+instance (Show a) => Show (FSA a) where
+  show (FSA nodes start) = "FSA "
+
+simpleFSA = FSA nodes 0 where
+  nodes = M.fromList [(0, n0), (1, n1), (2, n2)]
+  n0 = Node False [Transition 'a' 1]
+  n1 = Node False [Transition 'b' 0, EpsilonT 2]
+  n2 = Node True []
 
 newTransition :: (Eq a, Show a) => a -> Int -> Transition a
 newTransition = Transition
