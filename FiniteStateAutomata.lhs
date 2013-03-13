@@ -1,6 +1,6 @@
 \begin{code}
 {-# LANGUAGE TypeFamilies,FlexibleContexts,FlexibleInstances #-}
-module FiniteStateAutomata(FSA(..), NFA'(..), DFA'(..), epsilon, ppfsa) where
+module FiniteStateAutomata(FSA(..), NFAMap, NFA'(..), DFAMap, DFA'(..), epsilon, ppfsa) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
