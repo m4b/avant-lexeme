@@ -6,7 +6,7 @@
                            newFSA) 
 \begin{code}
 {-# LANGUAGE TypeFamilies,FlexibleContexts,FlexibleInstances #-}
-module FiniteStateAutomata where
+module FiniteStateAutomata(FSA(..), NFA'(..), DFA'(..), epsilon, ppfsa) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -25,8 +25,6 @@ instance (Show a) => Listable (M.Map a Int) where
 instance (Show a) => Listable (S.Set (Maybe a, Int)) where
   type Elem (S.Set (Maybe a, Int)) = Maybe a
   toList = S.toList
-
-epsilon = Nothing
 
 class (Ord (Alpha f), 
        Show (Alpha f), 
@@ -89,6 +87,9 @@ data NFA' a = NFA' {nalpha  :: S.Set a,
                     naccept :: S.Set Int,
                     nst     :: Int}
               
+epsilon :: Maybe a              
+epsilon = Nothing
+
 instance (Ord a, Show a) => FSA (NFA' a) where
   type Alpha (NFA' a) = a
   type FSAVal (NFA' a) = (S.Set (Maybe a, Int))
@@ -100,12 +101,14 @@ instance (Ord a, Show a) => FSA (NFA' a) where
 instance (Ord a, Show a) => Show (NFA' a) where
   show nfa = "NFA " ++ (fsaShow nfa)
   
+simpleNFA :: NFA' Char  
 simpleNFA = NFA' alpha states accepting start where
   alpha = S.fromList ['a','b']
   states = M.fromList [(0, S.fromList [(Just 'a', 1)]), (1, S.fromList [(Just 'b', 0), (epsilon, 2)])]
   start = 0
   accepting = S.fromList [2]
 
+simpleDFA :: DFA' Char
 simpleDFA = DFA' alpha states accepting start where
   alpha = S.fromList ['a','b','c']
   states = M.fromList [(0, M.fromList [('a', 1)]), (1, M.fromList [('b', 0), ('c', 2)])]
@@ -115,10 +118,6 @@ simpleDFA = DFA' alpha states accepting start where
 
 
 
-{-
-newNFA :: (Ord a, Show a) => S.Set a -> NFAMap a -> S.Set Int -> Int -> FSA a
-newNFA = NFA'
--}
 -- NEW -------------------------
 
 data DFA a = DFA {q :: [Int],
