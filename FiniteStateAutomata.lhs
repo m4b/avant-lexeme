@@ -5,82 +5,120 @@
                            newNode,
                            newFSA) 
 \begin{code}
+{-# LANGUAGE TypeFamilies,FlexibleContexts,FlexibleInstances #-}
 module FiniteStateAutomata where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-type StateMap a = M.Map Int (Node a)
+type DFAMap a = M.Map Int (M.Map a Int)
+type NFAMap a = M.Map Int (S.Set (Maybe a, Int))
 
-data Transition a = Transition {getLabel :: a, transition :: Int} 
-                  | EpsilonT {transition :: Int}
+class (Show (Elem m)) => Listable m where
+  type Elem m
+  toList :: m -> [(Elem m,Int)]
 
-instance (Show a) => Show (Transition a) where
-  show (Transition lbl trans) = (show lbl) ++ " -> " ++ (show trans)
-  show (EpsilonT trans)       = "eps "     ++ " -> " ++ (show trans)
+instance (Show a) => Listable (M.Map a Int) where
+  type Elem (M.Map a Int) = a 
+  toList = M.toList
 
-data Node a = Node {isAccepting    :: Bool, 
-                    getTransitions :: [Transition a]}
+instance (Show a) => Listable (S.Set (Maybe a, Int)) where
+  type Elem (S.Set (Maybe a, Int)) = Maybe a
+  toList = S.toList
 
-data FSA a = FSA {alphabet :: S.Set a,
-                  states   :: StateMap a,
-                  start    :: Int
-                  }
-             
-instance (Show a, Eq a) => Show (FSA a) where
-  show fsa@(FSA as ns start) = "FSA {" ++
-                           "alphabet=" ++ (show . S.toList $ as) ++ ", " ++
-                           "states=" ++ (show . M.keys $ ns) ++ ", " ++
-                           "start=" ++ (show start) ++ ", " ++
-                           "trans=" ++ (filter (/= '"') . show . showTransitions $ fsa)
-                           
-showTransitions :: (Show a) => FSA a -> [String]
-showTransitions (FSA _ ss _) = map showTransition (M.toList ss) where
-  showTransition (x,Node acc ts) = accStar ++ (show x) ++ " :: " ++ (show ts)
-    where accStar = if acc then "*" else ""
+epsilon = Nothing
 
---For internal use only
-pettyPrintFSA :: (Show a, Eq a) => FSA a -> IO ()
-pettyPrintFSA fsa@(FSA as ns start) = 
-  (putStr $ "FSA \n" ++
-             "alphabet=" ++ (show . S.toList $ as) ++ " \n" ++
-             "states=" ++ (show . M.keys $ ns) ++ " \n" ++
-             "start=" ++ (show start) ++ "\n" ++
-             "transitions\n") >> prettyTrans
-  where prettyTrans = mapM_ putStrLn . showTransitions $ fsa
+class (Ord (Alpha f), 
+       Show (Alpha f), 
+       Show f,
+       Show (FSAVal f),
+       Listable (FSAVal f)) => FSA f where
+  type Alpha f
+  type FSAVal f
+  alphabet  :: (Ord (Alpha f), Show (Alpha f)) => f -> S.Set (Alpha f)
+  accepting :: f -> S.Set Int
+  start     :: f -> Int
+  trans     :: f -> M.Map Int (FSAVal f)
+  states    :: f -> S.Set Int
+  states fsa = S.union (S.fromList . M.keys $ (trans fsa)) (accepting fsa)
 
-ppfsa :: (Show a, Eq a) => FSA a -> IO ()
-ppfsa = pettyPrintFSA
 
-type DFA' a = FSA a
-type NFA' a = FSA a
+fsaShow :: (FSA f) => f -> String
+fsaShow fsa = "{alphabet=" ++ (show . S.toList . alphabet $ fsa) ++ "," ++
+              "states=" ++ (show . S.toList . states $ fsa) ++ "," ++
+              "start=" ++ (show . start $ fsa) ++ "," ++
+              "accepting=" ++ (show . S.toList . accepting $ fsa) ++ "," ++
+              "trans=" ++ (show . map (filter (/= '"')) . showTransitions $ fsa)
 
-simpleFSA = FSA alpha states start where
+
+
+pettyPrinter :: (FSA f) => f -> IO ()
+pettyPrinter fsa = (putStr $ "alphabet=" ++ (show . S.toList . alphabet $ fsa) ++ "\n" ++
+              "states=" ++ (show . S.toList . states $ fsa) ++ "\n" ++
+              "start=" ++ (show . start $ fsa) ++ "\n" ++
+              "accepting=" ++ (show . S.toList . accepting $ fsa) ++ "\n") >> trans where
+  trans = mapM_ (putStrLn . filter (/= '"')) $ showTransitions fsa
+  
+ppfsa :: (FSA f) => f -> IO ()
+ppfsa = pettyPrinter
+
+
+showTransitions :: (FSA f) => f -> [String]
+showTransitions fsa = map showTransition . M.toList . trans $ fsa where
+  showTransition (from, ts) = (show from) ++ " :: " ++ (show . map showTransition' . toList $ ts) where
+    showTransition' (x, to) = (show x) ++ " -> " ++ (show to)
+  
+data DFA' a = DFA' {alpha  :: S.Set a,
+                    ss     :: DFAMap a,
+                    accept :: S.Set Int,
+                    st     :: Int}
+              
+instance (Ord a, Show a) => FSA (DFA' a) where
+  type Alpha (DFA' a) = a
+  type FSAVal (DFA' a) = (M.Map a Int)
+  alphabet = alpha
+  accepting = accept
+  start = st
+  trans = ss
+
+instance (Ord a, Show a) => Show (DFA' a) where
+  show dfa = "DFA " ++ (fsaShow dfa)
+
+data NFA' a = NFA' {nalpha  :: S.Set a,
+                    nss     :: NFAMap a, 
+                    naccept :: S.Set Int,
+                    nst     :: Int}
+              
+instance (Ord a, Show a) => FSA (NFA' a) where
+  type Alpha (NFA' a) = a
+  type FSAVal (NFA' a) = (S.Set (Maybe a, Int))
+  alphabet = nalpha
+  accepting = naccept
+  start = nst
+  trans = nss
+
+instance (Ord a, Show a) => Show (NFA' a) where
+  show nfa = "NFA " ++ (fsaShow nfa)
+  
+simpleNFA = NFA' alpha states accepting start where
   alpha = S.fromList ['a','b']
-  states = M.fromList [(0, s0), (1, s1), (2, s2)]
+  states = M.fromList [(0, S.fromList [(Just 'a', 1)]), (1, S.fromList [(Just 'b', 0), (epsilon, 2)])]
   start = 0
-  s0 = Node False [Transition 'a' 1]
-  s1 = Node False [Transition 'b' 0, EpsilonT 2]
-  s2 = Node True []
+  accepting = S.fromList [2]
 
-newTransition :: (Ord a, Show a) => a -> Int -> Transition a
-newTransition = Transition
+simpleDFA = DFA' alpha states accepting start where
+  alpha = S.fromList ['a','b','c']
+  states = M.fromList [(0, M.fromList [('a', 1)]), (1, M.fromList [('b', 0), ('c', 2)])]
+  start = 0
+  accepting = S.fromList [2]
 
-newEpsilonT :: (Ord a, Show a) => Int -> Transition a
-newEpsilonT = EpsilonT
 
-emptyNode :: (Show a, Eq a) => Node a
-emptyNode = Node False []
 
-newNode :: (Ord a, Show a) => Bool -> [Transition a] -> Node a
-newNode = Node
 
-singletonFSA :: (Show a, Eq a) => FSA a
-singletonFSA = FSA S.empty (M.singleton 0 emptyNode) 0
-
-newFSA :: (Ord a, Show a) => S.Set a -> StateMap a -> Int -> FSA a
-newFSA = FSA
-
+{-
+newNFA :: (Ord a, Show a) => S.Set a -> NFAMap a -> S.Set Int -> Int -> FSA a
+newNFA = NFA'
+-}
 -- NEW -------------------------
 
 data DFA a = DFA {q :: [Int],
