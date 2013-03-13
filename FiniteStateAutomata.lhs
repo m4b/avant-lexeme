@@ -16,12 +16,15 @@ The formal definition of an FSA is a 5-tuple, where:
 We tried to have our data structure mirror the mathematical definition of an FSA as closely as possible.
 
 \begin{code}
+
 {-# LANGUAGE TypeFamilies,
   FlexibleContexts,FlexibleInstances #-}
 module FiniteStateAutomata(
                            FSA(..),
                            NFA'(..),
+                           NFAMap,
                            DFA'(..),
+                           DFAMap,
                            epsilon, ppfsa) where
 
 import qualified Data.Map as M
