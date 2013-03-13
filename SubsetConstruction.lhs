@@ -1,7 +1,7 @@
 \begin{code}
 
 {-# LANGUAGE FlexibleInstances #-}
-module SubSetConstruction(subsetConstruction) where
+module SubsetConstruction(subsetConstruction) where
 
 import Data.Maybe
 import FiniteStateAutomata
