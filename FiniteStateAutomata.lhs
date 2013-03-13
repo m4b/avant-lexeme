@@ -10,6 +10,8 @@ module FiniteStateAutomata where
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+type StateMap a = M.Map Int (Node a)
+
 data Transition a = Transition {getLabel :: a, transition :: Int} 
                   | EpsilonT {transition :: Int}
 
@@ -21,7 +23,7 @@ data Node a = Node {isAccepting    :: Bool,
                     getTransitions :: [Transition a]}
 
 data FSA a = FSA {alphabet :: S.Set a,
-                  states   :: M.Map Int (Node a),
+                  states   :: StateMap a,
                   start    :: Int
                   }
              
@@ -61,16 +63,22 @@ simpleFSA = FSA alpha states start where
   s1 = Node False [Transition 'b' 0, EpsilonT 2]
   s2 = Node True []
 
-newTransition :: (Eq a, Show a) => a -> Int -> Transition a
+newTransition :: (Ord a, Show a) => a -> Int -> Transition a
 newTransition = Transition
 
-newEpsilonT :: (Eq a, Show a) => Int -> Transition a
+newEpsilonT :: (Ord a, Show a) => Int -> Transition a
 newEpsilonT = EpsilonT
 
-newNode :: (Eq a, Show a) => Bool -> [Transition a] -> Node a
+emptyNode :: (Show a, Eq a) => Node a
+emptyNode = Node False []
+
+newNode :: (Ord a, Show a) => Bool -> [Transition a] -> Node a
 newNode = Node
 
-newFSA :: (Eq a, Show a) => S.Set a -> M.Map Int (Node a) -> Int -> FSA a
+singletonFSA :: (Show a, Eq a) => FSA a
+singletonFSA = FSA S.empty (M.singleton 0 emptyNode) 0
+
+newFSA :: (Ord a, Show a) => S.Set a -> StateMap a -> Int -> FSA a
 newFSA = FSA
 
 -- NEW -------------------------
