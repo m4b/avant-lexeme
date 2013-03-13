@@ -9,5 +9,5 @@ data Regex a = Alt (Regex a) (Regex a)
              | Concat (Regex a) (Regex a)
              | Repeat (Regex a)
              | Term a
-             | Empty
+             | Empty deriving Show
 \end{code}

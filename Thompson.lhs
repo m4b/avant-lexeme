@@ -1,3 +1,7 @@
+\subsection{Thompson's Algorithm}
+
+In this module we provide our solution for converting a regular expression to an NFA.
+
 \begin{code}
 
 module Thompson (thompson) where

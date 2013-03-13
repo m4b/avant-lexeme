@@ -1,7 +1,11 @@
+\subsection{Subset Construction}
+
+In this module we provide our solution for converting a given non-deterministic finite state automaton to an equivalent deterministic finite state automaton.
+
 \begin{code}
 
 {-# LANGUAGE FlexibleInstances #-}
-module SubSetConstruction(subsetConstruction) where
+module SubsetConstruction(subsetConstruction) where
 
 import Data.Maybe
 import FiniteStateAutomata

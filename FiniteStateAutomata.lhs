@@ -1,6 +1,28 @@
+\section{Finite State Automaton}
+
+In this module we give our data structure for modelling a finite state automaton.
+
+The formal definition of an FSA is a 5-tuple, where:
+
+\begin{enumerate}
+\item a finite set of states (Q)
+\item a finite set of input symbols called the alphabet (Σ)
+\item a transition function (δ : Q × Σ \(\to\) Q)
+\item a start state (q0 ∈ Q)
+\item a set of accept states (F \(\subset\) Q)
+\end{enumerate}
+
+
+We tried to have our data structure mirror the mathematical definition of an FSA as closely as possible.
+
 \begin{code}
-{-# LANGUAGE TypeFamilies,FlexibleContexts,FlexibleInstances #-}
-module FiniteStateAutomata(FSA(..), NFA'(..), DFA'(..), epsilon, ppfsa) where
+{-# LANGUAGE TypeFamilies,
+  FlexibleContexts,FlexibleInstances #-}
+module FiniteStateAutomata(
+                           FSA(..),
+                           NFA'(..),
+                           DFA'(..),
+                           epsilon, ppfsa) where
 
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -27,37 +49,56 @@ class (Ord (Alpha f),
        Listable (FSAVal f)) => FSA f where
   type Alpha f
   type FSAVal f
-  alphabet  :: (Ord (Alpha f), Show (Alpha f)) => f -> S.Set (Alpha f)
+  alphabet  :: (Ord (Alpha f), Show (Alpha f)) =>
+               f -> S.Set (Alpha f)
   accepting :: f -> S.Set Int
   start     :: f -> Int
   trans     :: f -> M.Map Int (FSAVal f)
   states    :: f -> S.Set Int
-  states fsa = S.union (S.fromList . M.keys $ (trans fsa)) (accepting fsa)
+  states fsa = S.union (S.fromList . M.keys $ (trans fsa))
+               (accepting fsa)
 
 
 fsaShow :: (FSA f) => f -> String
-fsaShow fsa = "{alphabet=" ++ (show . S.toList . alphabet $ fsa) ++ "," ++
-              "states=" ++ (show . S.toList . states $ fsa) ++ "," ++
+fsaShow fsa = "{alphabet=" 
+              ++ (show . S.toList . alphabet $ fsa)
+              ++ "," ++
+              "states=" ++ 
+              (show . S.toList . states $ fsa) ++ "," ++
               "start=" ++ (show . start $ fsa) ++ "," ++
-              "accepting=" ++ (show . S.toList . accepting $ fsa) ++ "," ++
-              "trans=" ++ (show . map (filter (/= '"')) . showTransitions $ fsa)
-
+              "accepting=" 
+              ++ (show . S.toList . accepting $ fsa) 
+              ++ "," ++ "trans=" 
+              ++ (show . map (filter (/= '"')) . 
+                  showTransitions $ fsa)
 
 
 pettyPrinter :: (FSA f) => f -> IO ()
-pettyPrinter fsa = (putStr $ "alphabet=" ++ (show . S.toList . alphabet $ fsa) ++ "\n" ++
-              "states=" ++ (show . S.toList . states $ fsa) ++ "\n" ++
-              "start=" ++ (show . start $ fsa) ++ "\n" ++
-              "accepting=" ++ (show . S.toList . accepting $ fsa) ++ "\n") >> trans where
-  trans = mapM_ (putStrLn . filter (/= '"')) $ showTransitions fsa
+pettyPrinter fsa = (putStr $ "alphabet=" 
+                    ++ (show . S.toList . alphabet $ fsa)
+                    ++ "\n" ++
+                    "states=" 
+                    ++ (show . S.toList . states $ fsa)
+                    ++ "\n" ++
+                    "start=" ++ (show . start $ fsa)
+                    ++ "\n" ++
+                    "accepting=" 
+                    ++ (show . S.toList . accepting $ fsa)
+                    ++ "\n") >> trans 
+    where trans = 
+              mapM_ (putStrLn . filter (/= '"')) 
+                        $ showTransitions fsa
   
 ppfsa :: (FSA f) => f -> IO ()
 ppfsa = pettyPrinter
 
 
 showTransitions :: (FSA f) => f -> [String]
-showTransitions fsa = map showTransition . M.toList . trans $ fsa where
-  showTransition (from, ts) = (show from) ++ " :: " ++ (show . map showTransition' . toList $ ts) where
+showTransitions fsa = map showTransition .
+                      M.toList . trans $ fsa where
+  showTransition (from, ts) = (show from) 
+        ++ " :: " 
+        ++ (show . map showTransition' . toList $ ts) where
     showTransition' (x, to) = (show x) ++ " -> " ++ (show to)
   
 data DFA' a = DFA' {alpha  :: S.Set a,
@@ -98,19 +139,20 @@ instance (Ord a, Show a) => Show (NFA' a) where
 simpleNFA :: NFA' Char  
 simpleNFA = NFA' alpha states accepting start where
   alpha = S.fromList ['a','b']
-  states = M.fromList [(0, S.fromList [(Just 'a', 1)]), (1, S.fromList [(Just 'b', 0), (epsilon, 2)])]
+  states = M.fromList 
+           [(0, S.fromList [(Just 'a', 1)]),
+            (1, S.fromList [(Just 'b', 0), (epsilon, 2)])]
   start = 0
   accepting = S.fromList [2]
 
 simpleDFA :: DFA' Char
 simpleDFA = DFA' alpha states accepting start where
   alpha = S.fromList ['a','b','c']
-  states = M.fromList [(0, M.fromList [('a', 1)]), (1, M.fromList [('b', 0), ('c', 2)])]
+  states = M.fromList 
+           [(0, M.fromList [('a', 1)]),
+            (1, M.fromList [('b', 0), ('c', 2)])]
   start = 0
   accepting = S.fromList [2]
-
-
-
 
 -- NEW -------------------------
 
@@ -150,7 +192,6 @@ dfa1 = DFA
               ((5,"b"),2),
               ((6,"a"),5),
               ((7,"b"),5)]
-
 
 
 \end{code}

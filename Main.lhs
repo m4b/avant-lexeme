@@ -31,13 +31,22 @@
 
 \section{Introduction}
 
-This is the final report for project 1, CS454, for lexical analysis.
+This is the final report for project 1, CS454, on lexical analysis.
 
 Our first design decision was to use Haskell's literate mode to prepare all of our code.  Secondly, we decided to use the distributed revision control software \verb=git= for collaborative coding.
 
+We decided to write each algorithm in the assignment as its own module, in addition to modules describing finite state automata (FSA) and regular expressions.
+
 %include FiniteStateAutomata.lhs
 %include Regex.lhs
-% include Algorithms.lhs
+
+%include Algorithms.lhs
+%include Thompson.lhs
+%include SubsetConstruction.lhs
+
+%include Alphabet.lhs
+%include Input.lhs
+%include ParseReg.lhs
 
 \section{Module: Main.lhs}
 
@@ -47,8 +56,8 @@ module Main where
 
 import FiniteStateAutomata
 import Regex
---import Algorithms
-
+import Algorithms
+import Input
 
 main =
      putStrLn "((λ.x x) helloworld)"
