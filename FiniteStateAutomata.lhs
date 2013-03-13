@@ -1,9 +1,3 @@
-(Transition(),
-                           Node(),
-                           FSA(),
-                           newTransition,
-                           newNode,
-                           newFSA) 
 \begin{code}
 {-# LANGUAGE TypeFamilies,FlexibleContexts,FlexibleInstances #-}
 module FiniteStateAutomata(FSA(..), NFA'(..), DFA'(..), epsilon, ppfsa) where
