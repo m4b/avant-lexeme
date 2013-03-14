@@ -43,10 +43,14 @@ We decided to write each algorithm in the assignment as its own module, in addit
 %include Algorithms.lhs
 %include Thompson.lhs
 %include SubsetConstruction.lhs
+%include Hopcroft.lhs
+%include Recognize.lhs
 
 %include Alphabet.lhs
 %include Input.lhs
 %include ParseReg.lhs
+%include ParseNFA.lhs
+%include ParseDFA.lhs
 
 \section{Module: Main.lhs}
 
@@ -59,8 +63,10 @@ import Regex
 import Algorithms
 import Input
 
-main =
-     putStrLn "((λ.x x) helloworld)"
+main = do
+  source <- readFile "regexp2.txt"
+  let regex = getRegex source
+  putStrLn $ show regex
 
 \end{code}
 
