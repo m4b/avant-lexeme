@@ -14,7 +14,6 @@ import SubsetConstruction
 import Hopcroft
 import Recognize
 
-
 \end{code}
 
 In this way we encapsulated (and named) the solutions individually, as the assignment requested.
