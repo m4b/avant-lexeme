@@ -1,0 +1,30 @@
+dfa 
+states 
+s1
+s2
+s3
+s4
+s5
+s6
+s7
+end;
+initial
+s1
+accept 
+s5
+s6
+s7
+end; 
+transitions 
+s1 'a --> s2
+s2 'a --> s3
+s3 'a --> s4
+s4 'a --> s5
+s5 'a --> s6
+s6 'a --> s7
+s7 'a --> s5
+end;
+
+alphabet
+'a 'b 'c
+end

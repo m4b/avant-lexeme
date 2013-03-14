@@ -1,0 +1,19 @@
+language math
+alphabet
+'p 'h 'i 'a 'l ' '\n '1 '2 '3 '4 '5 '6 '7 '8 '9 '0 '. '* '/ '+ '- '; ': '_ ',
+
+end;
+ 
+class greek is | + 'p | + 'h 'i 'i + 'a + 'l + 'p + 'h 'a relevant end;
+
+class integer is * | '1 | '2 | '3 | '4 | '5 | '6 | '7 | '8 | '9 '0 relevant end;
+
+class floatingPoint is  + * | '1 | '2 | '3 | '4 | '5 | '6 | '7 | '8 | '9 '0 + '. * | '1 | '2 | '3 | '4 | '5 | '6 | '7 | '8 | '9 '0  relevant end;
+
+class integerArithmatic is  + * | '1 | '2 | '3 | '4 | '5 | '6 | '7 | '8 | '9 '0 + | '* | '/ | '+ '- * | '1 | '2 | '3 | '4 | '5 | '6 | '7 | '8 | '9 '0  relevant end;
+
+class punctuation is * | '. | '; | ': | '_ ', irrelevant end;
+
+class whitespace is * | ' '\n  discard end;
+
+end;

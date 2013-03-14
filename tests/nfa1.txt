@@ -1,0 +1,26 @@
+nfa
+states 
+blah1
+blah2
+blah3
+blah4
+blah5
+end;
+initial
+blah1
+accept 
+blah4
+blah5
+end; 
+transitions 
+blah1 --> blah2
+blah2 'a 'b 'c --> blah2
+blah2 'a 'b --> blah3
+blah3 'a 'b --> blah4
+blah3 'a 'b --> blah5
+blah5 'a --> blah1
+end;
+
+alphabet
+'a 'b 'c
+end

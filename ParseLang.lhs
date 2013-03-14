@@ -1,5 +1,7 @@
 \subsection{Parse a Lexical Description of a Programming Language}
 
+In this module we parse a lexical description of a language, and prepare it for parsing with respect to our previous data structures and algorithms.
+
 \begin{code}
 
 {-# LANGUAGE TypeFamilies,
@@ -21,7 +23,9 @@ data LexDesc =
     Alphabet [Char] 
 
 type Identifier = String
-data Relevance = Relevant | Irrelevant | Discard deriving Show
+data Relevance = Relevant | Irrelevant | Discard 
+                 deriving Show
+
 data Class = Class {
       name :: Identifier,
       regex :: Regex Char,
@@ -81,7 +85,7 @@ parseLang = do
 
 -- example
 readLang1 = do
-  source <- readFile "tests/lexdesc1.txt"
+  source <- readFile "tests/lexdesc3.txt"
   let x = (parse parseLang) source
   putStrLn $ show x
 

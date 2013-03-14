@@ -8,6 +8,8 @@ module Alphabet(parseElement, parseAlphabet, getAlphabet, gotoGetAlphabet) where
 
 import Data.List
 import Parselib
+import GHC.Unicode (isPrint)
+import Data.Char (ord)
 
 \end{code}
 
@@ -65,24 +67,41 @@ parseAlphabet' (EndToken:ts) =
 
 getAlphabet' = parseAlphabet' . scanAlphabet . gotoAlphabet
 
--- this was not a fune bug to track down
+-- this was not a fun bug to track down
 parseEscapedChar = 
       do {string "\\n"; return '\n'}
   +++ do {string "\\t"; return '\t'}
-  +++ do {string "\\" ; return '\\'}
   +++ do {string "\\v"; return '\v'}
   +++ do {string "\\r"; return '\r'}
   +++ do {string "\\b"; return '\b'}
   +++ do {string "\\a"; return '\a'}
   +++ do {string "\\f"; return '\f'}
+  +++ do {string "\\" ; return '\\'}
+
+printablePlus char = 
+    let ascii = ord char in
+    (ascii >= 7 && ascii <= 13 ) 
+    || (ascii >= 32 && ascii <= 126)
 
 parseElement :: Parser Char
 parseElement = do
   space
   char '\''
-  c <- alphanum +++ char ' ' 
+  c <- 
+      parseEscapedChar +++
+      sat printablePlus
+{-        char '.' +++ char '+'
+       +++ char '-' +++ char '*'
+       +++ char '/'  -- +++ char '\\' <-- fundamentally evil
+       +++ char '0' +++ char '1'
+       +++ char '2' +++ char '3'
+       +++ char '4' +++ char '5'
+       +++ char '6' +++ char '7'
+       +++ char '8' +++ char '9'
+       +++ char ' ' +++ char '\b'
        +++ char '\n' +++ char '\t'
-       +++ parseEscapedChar
+-}
+
   return c
 
 parseAlphabet :: Parser [Char]
