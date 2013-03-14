@@ -4,7 +4,7 @@ This module provides functions for lexing and parsing alphabets found in input f
 
 \begin{code}
 
-module Alphabet(parseAlphabet, getAlphabet, gotoGetAlphabet) where
+module Alphabet(parseElement, parseAlphabet, getAlphabet, gotoGetAlphabet) where
 
 import Data.List
 import Parselib

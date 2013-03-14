@@ -6,7 +6,7 @@ Parsing is divided into a function for each regular expression.  It handles asci
 
 \begin{code}
 
-module ParseReg (getRegex) where
+module ParseReg (getRegex,parseRegex) where
 
 import Alphabet
 import Regex
@@ -19,31 +19,30 @@ parseAlt :: Alphabet-> Parser (Regex Char)
 parseAlt alphabet = do
   string "|"
   space
-  regex <- parseRegex' alphabet
+  regex <- parseRegex alphabet
   space
-  regex' <- parseRegex' alphabet
+  regex' <- parseRegex alphabet
   return (Alt regex regex')
 
 parseConcat :: Alphabet -> Parser (Regex Char)
 parseConcat alphabet = do
   string "+"
   space
-  regex <- parseRegex' alphabet
+  regex <- parseRegex alphabet
   space
-  regex' <- parseRegex' alphabet
+  regex' <- parseRegex alphabet
   return (Concat regex regex')
 
 parseKleene :: Alphabet -> Parser (Regex Char)
 parseKleene alphabet = do
   string "*"
   space
-  regex <- parseRegex' alphabet
+  regex <- parseRegex alphabet
   return (Repeat regex)
 
 parseTerm :: Alphabet -> Parser (Regex Char)
 parseTerm alphabet = do
-  char '\''
-  c <- alphanum +++ char ' ' +++ char '\n' +++ char '\t'
+  c <- parseElement
   if not (elem c alphabet) then
       let msg = "Regular expression contains terminal "
                 ++ show c 
@@ -53,8 +52,8 @@ parseTerm alphabet = do
   else
       return (Term c)
 
-parseRegex' :: Alphabet -> Parser (Regex Char)
-parseRegex' alphabet = do
+parseRegex :: Alphabet -> Parser (Regex Char)
+parseRegex alphabet = do
   space
   parseAlt alphabet +++
    parseConcat alphabet +++
@@ -64,7 +63,7 @@ parseRegex' alphabet = do
 -- takes an alphabet
 getRegex :: String -> Alphabet -> Regex Char
 getRegex file alphabet = 
-    case (parse (parseRegex' alphabet)) file of
+    case (parse (parseRegex alphabet)) file of
       [] -> error "Could not parse regular expression."
       regex -> (fst . head) regex
                   
