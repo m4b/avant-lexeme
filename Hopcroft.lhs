@@ -73,6 +73,25 @@ reachable fsa state = S.fromList ns where
   ns        = if isNothing trans' then [] else ns'
   ns'       = M.elems . fromJust $ trans'
 
+-- A test DFA that has several unreachable states: [3,4,5,6]
+testDFA :: DFA' Char
+testDFA = DFA' alpha' ss' accept' st' where
+  alpha'  = S.fromList "ab"
+  ss'     = M.fromList [(0, trans0), (1, trans1), (2, trans2), (3, trans3)]
+  trans0  = M.fromList [('a', 1), ('b', 2)]
+  trans1  = M.empty
+  trans2  = M.empty
+  trans3  = M.fromList [('a', 4), ('b', 5)]  
+  accept' = S.fromList [1,2,3,6]
+  st'     = 0
 
+-- Tests the removal of unreachable states
+testDroppable :: Bool
+testDroppable = alphabet' && states' && start' && accepting' where
+  alphabet'  = (alphabet dfa) == (S.fromList "ab")
+  states'    = (states dfa) == (S.fromList [0,1,2])
+  start'     = (start dfa) == 0
+  accepting' = (accepting dfa) == (S.fromList [1,2])
+  dfa        = dropUnreachable testDFA
 
 \end{code}
