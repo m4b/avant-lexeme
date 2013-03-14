@@ -7,11 +7,10 @@ The formal definition of an FSA is a 5-tuple, where:
 \begin{enumerate}
 \item a finite set of states (Q)
 \item a finite set of input symbols called the alphabet (Σ)
-\item a transition function (δ : Q × Σ \(\to\) Q)
-\item a start state (q0 ∈ Q)
+\item a transition function (\(\delta\) : Q × Σ \(\to\) Q)
+\item a start state (q0 \(\in\) Q)
 \item a set of accept states (F \(\subset\) Q)
 \end{enumerate}
-
 
 We tried to have our data structure mirror the mathematical definition of an FSA as closely as possible.
 
@@ -60,7 +59,9 @@ class (Ord (Alpha f),
   states    :: f -> S.Set Int
   states fsa = S.unions [(S.fromList . M.keys . trans $ fsa), 
                          (accepting fsa),
-                         (S.fromList . concatMap sndList . M.elems . trans $ fsa)]
+                         (S.fromList . 
+                         concatMap sndList . 
+                         M.elems . trans $ fsa)]
 
 sndList :: Listable m => m -> [Int]
 sndList = map snd . toList
@@ -163,51 +164,13 @@ simpleDFA = DFA' alpha states accepting start where
 deadStateDFA :: DFA' Char
 deadStateDFA = DFA' alpha states accepting start where
   alpha = S.fromList "ab"
-  states = M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
+  states = 
+   M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
     trans0 = M.fromList [('a', 1), ('b', 2)]
     trans1 = M.fromList [('b', 3)]
     trans2 = M.fromList [('a', 3)]
   accepting = S.fromList [1, 2]
   start = 0
-
--- NEW -------------------------
-
-data DFA a = DFA {q :: [Int],
-              sigma :: [a],
-              delta :: M.Map (Int,a) Int,
-              q0 :: Int,
-              f :: [Int]
-              } deriving Show
-
-data Trans = Epsilon | Q Int deriving Show
-
-data NFA a = NFA {nq :: [Int],
-              nsigma :: [a],
-              ndelta :: M.Map (Trans,a) Int,
-              nq0 :: Int,
-              nf :: [Int]
-              } deriving Show
-
-dfa1 = DFA 
-         [0,1,2,3,4,5,6,7]
-         ["a","b"]
-         d
-         0
-         [0,6]
-         where  
-         d = M.fromList [
-              ((0,"a"),1),
-              ((1,"a"),4),
-              ((1,"b"),2),
-              ((2,"a"),3),
-              ((2,"b"),5),
-              ((3,"b"),1),
-              ((4,"a"),6),
-              ((4,"b"),5),
-              ((5,"a"),7),
-              ((5,"b"),2),
-              ((6,"a"),5),
-              ((7,"b"),5)]
 
 
 \end{code}
