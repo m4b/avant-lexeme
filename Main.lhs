@@ -76,8 +76,9 @@ main = do
   testfile <- readFile "tests/testfile2.txt"
   let desc = getLang source
   let regex = Kleene (alternate (classes desc))
-  let test = (match . hopcroft . subsetConstruction . thompson) regex
-  putStrLn $ show (test testfile)
+  let test = (thompson) regex
+  putStrLn $ show test 
+--  putStrLn $ show (test testfile)
   putStrLn $ show desc
 
 

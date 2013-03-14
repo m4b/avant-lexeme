@@ -36,8 +36,8 @@ data Class = Class {
       relevance :: Relevance}
 
 instance Show Class where
-    show c = "class " ++ name c ++ 
-             show (regex c) ++ 
+    show c = "class " ++ name c ++ " " ++
+             show (regex c) ++  " " ++
              show (relevance c) ++
              " end;"
 
@@ -53,9 +53,10 @@ instance Show Desc where
     show desc = 
          "language: " ++ language desc ++ "\n" ++
          "alphabet: " ++
-         show (showAlphabet (symbols desc)) ++
+         showAlphabet (symbols desc) ++
          " end;" ++ "\n" ++
-         "classes: "  ++ show (classes desc) ++ "\n" ++ 
+         "classes: "  ++ "\n" ++ 
+         unlines (map show (classes desc)) ++
          " end;"
 
 parseLangIdentifier :: Parser String

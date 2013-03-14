@@ -21,7 +21,7 @@ instance Show (Regex Char) where
     show (Concat r1 r2) = 
         "(" ++ (show r1) ++ "+" ++ (show r2) ++ ")"
     show (Kleene r1)    = "(" ++ (show r1) ++ "*" ++ ")"
-    show (Term c)       = show c
+    show (Term c)       = '\'':c:[]
     show (Empty)        = "\\epsilon"
 
 \end{code}
