@@ -36,7 +36,7 @@ findAccepting nfa labels = S.fromList sets where
   accept = accepting nfa
 
 subsetConstruction' :: (Ord a, Show a) => NFA' a -> Int -> LabelMap -> DFAMap a -> [S.Set Int] -> (Int, LabelMap, DFAMap a)
-subsetConstruction' nfa next labels dfamap [] = (next, labels, dfamap)
+subsetConstruction' _ next labels dfamap [] = (next, labels, dfamap)
 subsetConstruction' nfa next labels dfamap (s:ss) = case (s == S.empty) of
   True -> subsetConstruction' nfa next labels dfamap ss
   False -> if done then continue else recursion where

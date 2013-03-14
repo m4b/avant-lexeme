@@ -40,7 +40,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 hopcroft :: (Ord a, Show a) => DFA' a -> DFA' a
-hopcroft dfa = hopcroft' dfa parts partMap where
+hopcroft dfa = hopcroft' (dropUnreachable dfa) parts partMap where
   accept'   = accepting dfa
   notAccept = S.difference (states dfa) accept'
   parts     = S.fromList [accept', notAccept]
@@ -56,10 +56,10 @@ hopcroft' dfa set eqMap = if done then dfa' else recurse where
     eqMap' = toPartitionMap set'
 
 consistent :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> [S.Set Int] -> S.Set Int
-consistent _ eqMap [] = S.empty
-consistent dfa eqMap (s:ss) = if continue then recurse else s where 
+consistent _ _ [] = S.empty
+consistent dfa eqMap (s:ss') = if continue then recurse else s where 
   continue = (isConsistent dfa eqMap (S.toList s))
-  recurse  = consistent dfa eqMap ss
+  recurse  = consistent dfa eqMap ss'
 
 buildDFA :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> DFA' a
 buildDFA dfa eqMap = DFA' alphabet' ss' accept' st' where
@@ -81,7 +81,7 @@ updateState dfa eqMap oldStates = update where
 toPartitionMap :: S.Set (S.Set Int) -> M.Map Int Int
 toPartitionMap = toPartitionMap' 0 M.empty . S.toList where
   toPartitionMap' _ acc []        = acc
-  toPartitionMap' next acc (s:ss) = toPartitionMap' (next+1) acc' ss where
+  toPartitionMap' next acc (s:ss') = toPartitionMap' (next+1) acc' ss' where
     acc'   = S.fold insert acc s
     insert = flip M.insert next
 
@@ -108,16 +108,17 @@ isConsistent dfa partitions (s:ss) = isConsistent' dfa partitions eqMap ss where
   eqMap = if isNothing map then M.empty else equivalenceMap partitions . fromJust $ map
 
 equivalenceMap :: M.Map Int Int -> M.Map a Int -> M.Map a Int
-equivalenceMap partitions map = M.mapWithKey updateKey map where
-  updateKey k v = partitions M.! v
+equivalenceMap partitions map' = M.mapWithKey updateKey map' where
+  updateKey _ v = partitions M.! v
 
 isConsistent' :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> M.Map a Int -> [Int] -> Bool
 isConsistent' _ _ _ [] = True
-isConsistent' dfa partitions eqMap (s:ss) = if consistent then recurse else False where
-  consistent = map' == eqMap
+
+isConsistent' dfa partitions eqMap (s:ss') = if consistent' then recurse else False where
+  consistent' = map' == eqMap
   mMap = M.lookup s (trans dfa)
   map' = if isNothing mMap then M.empty else equivalenceMap partitions . fromJust $ mMap
-  recurse = isConsistent' dfa partitions eqMap ss
+  recurse = isConsistent' dfa partitions eqMap ss'
 
 -- | Removes all unreachable states in a DFA'
 dropUnreachable :: (Ord a, Show a) => DFA' a -> DFA' a
@@ -169,7 +170,6 @@ testDroppable = alphabet' && states' && start' && accepting' where
   accepting' = (accepting dfa) == (S.fromList [1,2])
   dfa        = dropUnreachable testDFA
 
-
 -- A test DFA that can be reduced to a single node with two edges
 -- it recognizes strings of the language (a|b)*
 testDFA' :: DFA' Char
@@ -203,6 +203,7 @@ testPartition = partition' == correctPartition where
   dfa              = nonMinimalDFA
   
 
+nonMinimalDFA :: DFA' Char
 nonMinimalDFA = DFA' alpha' ss' accept' st' where 
     alpha'  = S.fromList "ab"
     ss'     = M.fromList [(0,trans0),(1,trans1),(2,trans2),(3,trans3),(4,trans4),(5,trans5),(6,trans6),(7,trans7)]
