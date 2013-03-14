@@ -43,6 +43,43 @@ import qualified Data.Set as S
 hopcroft :: (Ord a, Show a) => DFA' a -> DFA' a
 hopcroft = undefined
 
+-- Partitions a given equivalence group
+partition :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> S.Set Int -> S.Set (S.Set Int)
+partition dfa parts toPart = partition' S.empty dfa parts (S.toList toPart)
+
+partition' :: (Ord a, Show a) => S.Set (S.Set Int) -> DFA' a -> M.Map Int Int -> [Int] -> S.Set (S.Set Int)
+partition' acc _ _ []= acc
+partition' acc dfa parts (s:ss) = partition' acc' dfa parts ss' where
+  acc'    = S.insert set acc
+  sMap    = eqMap s
+  matches = filter ((sMap ==) . eqMap) ss
+  set     = S.fromList (s:matches)
+  ss'     = filter elems ss
+  elems x = not (S.member x set)
+  eqMap x = eqMap' where
+    map'   = M.lookup x (trans dfa)
+    eqMap' = if isNothing map' then M.empty else equivalenceMap parts . fromJust $ map'
+
+
+-- Determines if a set of states all have the same edges
+isConsistent :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> [Int] -> Bool
+isConsistent _ _ [] = True
+isConsistent dfa partitions (s:ss) = isConsistent' dfa partitions eqMap ss where
+  map = M.lookup s (trans dfa)
+  eqMap = if isNothing map then M.empty else equivalenceMap partitions . fromJust $ map
+
+equivalenceMap :: M.Map Int Int -> M.Map a Int -> M.Map a Int
+equivalenceMap partitions map = M.mapWithKey updateKey map where
+  updateKey k v = partitions M.! v
+
+isConsistent' :: (Ord a, Show a) => DFA' a -> M.Map Int Int -> M.Map a Int -> [Int] -> Bool
+isConsistent' _ _ _ [] = True
+isConsistent' dfa partitions eqMap (s:ss) = if consistent then recurse else False where
+  consistent = map' == eqMap
+  mMap = M.lookup s (trans dfa)
+  map' = if isNothing mMap then M.empty else equivalenceMap partitions . fromJust $ mMap
+  recurse = isConsistent' dfa partitions eqMap ss
+
 -- | Removes all unreachable states in a DFA'
 dropUnreachable :: (Ord a, Show a) => DFA' a -> DFA' a
 dropUnreachable dfa = dropUnreachable' set set dfa where 
@@ -116,4 +153,30 @@ testHopcroft = alphabet' && states' && start' && accepting' && trans' where
   trans0     = M.fromList [('a', 0), ('b', 0)]
   dfa        = hopcroft testDFA'
   
+testPartition :: Bool
+testPartition = partition' == correctPartition where
+  partition'       = partition dfa parts toPart
+  correctPartition = S.fromList [s1,s2,s3] 
+  s1               = S.fromList [1,2,5]
+  s2               = S.fromList [3]
+  s3               = S.fromList [4,7]
+  parts            = M.fromList [(0,0),(6,0), (1,1),(2,1),(3,1),(4,1),(5,1),(7,1)]
+  toPart           = S.fromList [1,2,3,4,5,7]
+  dfa              = nonMinimalDFA
+  
+
+nonMinimalDFA = DFA' alpha' ss' accept' st' where 
+    alpha'  = S.fromList "ab"
+    ss'     = M.fromList [(0,trans0),(1,trans1),(2,trans2),(3,trans3),(4,trans4),(5,trans5),(6,trans6),(7,trans7)]
+    trans0  = M.fromList [('a', 1)]
+    trans1  = M.fromList [('a', 4), ('b',2)]
+    trans2  = M.fromList [('a', 3), ('b',5)]
+    trans3  = M.fromList [('b', 1)]
+    trans4  = M.fromList [('a', 6), ('b', 5)]
+    trans5  = M.fromList [('a', 7), ('b', 2)]
+    trans6  = M.fromList [('a', 5)]
+    trans7  = M.fromList [('a', 0), ('b', 5)]
+    accept' = S.fromList [0, 6]
+    st'     = 0
+
 \end{code}
