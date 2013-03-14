@@ -61,7 +61,6 @@ class (Ord (Alpha f),
   states fsa = S.union (S.fromList . M.keys $ (trans fsa))
                (accepting fsa)
 
-
 fsaShow :: (FSA f) => f -> String
 fsaShow fsa = "{alphabet=" 
               ++ (show . S.toList . alphabet $ fsa)

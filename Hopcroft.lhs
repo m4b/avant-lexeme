@@ -31,92 +31,48 @@ end;
 
 \begin{code}
 
-module Hopcroft where
+module Hopcroft(hopcroft) where
 
 import FiniteStateAutomata
 import Regex
 
+import Data.Maybe
 import qualified Data.Map as M
+import qualified Data.Set as S
 
+hopcroft :: (Ord a, Show a) => DFA' a -> DFA' a
+hopcroft = undefined
 
-data DFA a = DFA {q :: [Int],
-              sigma :: [a],
-              delta :: M.Map (Int,a) Int,
-              q0 :: Int,
-              f :: [Int]
-              } deriving Show
+-- | Removes all unreachable states in a DFA'
+dropUnreachable :: (Ord a, Show a) => DFA' a -> DFA' a
+dropUnreachable dfa = dropUnreachable' set set dfa where 
+  set = S.singleton $ start dfa
 
-d = M.fromList [
-     ((0,"a"),1),
-     ((1,"a"),4),
-     ((1,"b"),2),
-     ((2,"a"),3),
-     ((2,"b"),5),
-     ((3,"b"),1),
-     ((4,"a"),6),
-     ((4,"b"),5),
-     ((5,"a"),7),
-     ((5,"b"),2),
-     ((6,"a"),5),
-     ((7,"b"),5)]
-        
-barbar = DFA 
-         [0,1,2,3,4,5,6,7]
-         ["a","b"]
-         d
-         0
-         [0,6]
+dropUnreachable' :: (Ord a, Show a) => S.Set Int -> S.Set Int -> DFA' a -> DFA' a
+dropUnreachable' reachable_states new_states dfa = if done then dfa' else recurse where
+  reachable'        = S.unions . S.toList . S.map (reachable dfa) $ new_states
+  new_states'       = S.difference reachable' reachable_states
+  reachable_states' = S.union reachable_states new_states'
+  recurse           = dropUnreachable' reachable_states' new_states' dfa 
+  dfa'              = updateDFA dfa reachable_states'
+  done              = new_states' == S.empty
 
-move tuple dfa = M.lookup tuple (delta dfa)
+updateDFA :: (Ord a, Show a) => DFA' a -> S.Set Int -> DFA' a
+updateDFA dfa reachable_states = DFA' alphabet' trans' accept' start' where
+  unreachable_states = S.difference (states dfa) reachable_states
+  accept'            = S.difference (accepting dfa) unreachable_states
+  alphabet'          = alphabet dfa
+  start'             = start dfa
+  trans'             = M.filterWithKey removeKey (trans dfa)
+  removeKey k _      = S.member k reachable_states
+  
 
-startState fsa = (M.!) (nodes fsa) (start fsa) 
+reachable :: (Ord a, Show a) => DFA' a -> Int -> S.Set Int
+reachable fsa state = S.fromList ns where
+  trans'    = M.lookup state (trans fsa)
+  ns        = if isNothing trans' then [] else ns'
+  ns'       = M.elems . fromJust $ trans'
 
-partition fsa = M.partition (isAccepting) (nodes fsa)
-accepting = fst . partition
-
---isConsistent 
-
---hopcroft fsa = 
---    let (g1,g2) = partition fsa in
-    
-
-foo = newFSA 
-    (M.fromList [(0, (newNode False [newTransition "a" 1])),
-                 (1, (newNode False [newTransition "a" 0]))]) 0
-
-bar = newFSA
-    (M.fromList [(0, (newNode False [newTransition "a" 1]))]) 0
-
-min1 = newFSA 
-    (M.fromList [(0, (newNode True [newTransition "a" 1])),
-                 (1, (newNode False [(newTransition "a" 4), (newTransition "b" 2)])),
-                 (2, (newNode False [(newTransition "a" 3), (newTransition "b" 5)])),
-                 (3, (newNode False [(newTransition "b" 1)])),
-                 (4, (newNode False [(newTransition "a" 6), (newTransition "b" 5)])),
-                 (5, (newNode False [(newTransition "a" 7), (newTransition "b" 2)])),
-                 (6, (newNode True [(newTransition "a" 5)])),
-                 (7, (newNode False [(newTransition "b" 5)]))]) 0 ["a","b"]
-
-min2 = newFSA
-       (M.fromList [(1, (newNode True [newTransition "a" 6])),
-                    (6, (newNode False [(newTransition "a" 5), (newTransition "b" 7)])),
-                    (7, (newNode False [(newTransition "a" 4), (newTransition "b" 6)])),
-                    (4, (newNode False [(newTransition "b" 6)])),
-                    (5, (newNode False [(newTransition "a" 1), (newTransition "b" 6)]))]) 1 ["a", "b"]
-
---instance Show a => Show (FSA a) where
---    show (FSA node) = node
-
--- ->_a i
---instance Show (Transition a) where
---    show t =
---        case t of
---          Transition s i -> "->_" ++ s ++ show i
---          EpsilonT i -> "->_e" ++ show i
-        
-
---instance Show (FSA [Char]) where
---show (FSA m i) = undefined
 
 
 \end{code}
