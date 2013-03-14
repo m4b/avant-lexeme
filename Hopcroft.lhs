@@ -94,4 +94,26 @@ testDroppable = alphabet' && states' && start' && accepting' where
   accepting' = (accepting dfa) == (S.fromList [1,2])
   dfa        = dropUnreachable testDFA
 
+
+-- A test DFA that can be reduced to a single node with two edges
+-- it recognizes strings of the language (a|b)*
+testDFA' :: DFA' Char
+testDFA' = DFA' alpha' ss' accept' st' where
+  alpha'  = S.fromList "ab"
+  ss'     = M.fromList [(0, trans'), (1, trans'), (2, trans')]
+  trans'  = M.fromList [('a', 1), ('b', 2)]
+  accept' = S.fromList [0,1,2]
+  st'     = 0
+  
+-- Tests that hopcroft reduces testDFA' to a minimal dfa  
+testHopcroft :: Bool
+testHopcroft = alphabet' && states' && start' && accepting' && trans' where
+  alphabet'  = (alphabet dfa) == (S.fromList "ab")
+  states'    = (states dfa) == (S.fromList [0])
+  start'     = (start dfa) == 0
+  accepting' = (accepting dfa) == (S.fromList [0])
+  trans'     = (trans dfa) == (M.fromList [(0, trans0)])
+  trans0     = M.fromList [('a', 0), ('b', 0)]
+  dfa        = hopcroft testDFA'
+  
 \end{code}
