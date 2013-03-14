@@ -1,38 +1,19 @@
 \subsection{Parse a Regular Expression}
 
-This module inputs, lexes, and parses a regular expression from a text file.
+This module inputs, lexes, and parses a regular expression from a text file.  It uses Hutton's Parselib library.
+
+Parsing is divided into a function for each regular expression.  It handles ascii spaces, newlines, tabs, etc.  I.e., the printable subset of ascii, as required by the spec.
 
 \begin{code}
 
-module ParseReg where
+module ParseReg (getRegex) where
 
 -- alphabet not being used, need to check for membership
 -- i suppose
 import Alphabet
 import Regex
-import Data.List
-import Data.Char (isSpace)
 
 import Parselib
-
-data Tokens = 
-            AltToken |
-            ConcatToken |
-            KleeneToken | 
-            TermToken Char |
-            EmptyToken deriving (Show, Eq)
-
-
-tokenize [] = []
-tokenize ('|':cs) = AltToken:tokenize cs
-tokenize ('+':cs) = ConcatToken:tokenize cs
-tokenize ('*':cs) = KleeneToken:tokenize cs
-tokenize ('\'':' ':cs) = EmptyToken:tokenize cs
-tokenize ('\'':c:cs) = TermToken c:tokenize cs
-tokenize (cs) | isPrefixOf "alphabet" cs = []
-tokenize (c:cs) | isSpace c = tokenize cs
-tokenize (c:cs) = error ("unknown character" 
-               ++ show c ++ " in regular expression")
 
 parseAlt :: Parser (Regex Char)
 parseAlt = do
@@ -70,12 +51,15 @@ parseRegex' = do
   space
   parseAlt +++ parseConcat +++ parseKleene +++ parseTerm
 
-getRegex' = parse parseRegex'
+getRegex file = 
+    case (parse parseRegex') file of
+      [] -> error "Could not parse regular expression."
+      regex -> (fst . head) regex
                   
 -- example
 readRegex = do
     source <- readFile "regexp2.txt"
-    let regex = getRegex' source
+    let regex = getRegex source
     putStrLn $ show regex
 
 \end{code}
