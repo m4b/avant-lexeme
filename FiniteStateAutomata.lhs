@@ -6,8 +6,8 @@ The formal definition of an FSA is a 5-tuple, where:
 
 \begin{enumerate}
 \item a finite set of states (Q)
-\item a finite set of input symbols called the alphabet (Σ)
-\item a transition function (\(\delta\) : Q × Σ \(\to\) Q)
+\item a finite set of input symbols called the alphabet (\(\Sigma\))
+\item a transition function (\(\delta\) : Q × \(\Sigma\) \(\to\) Q)
 \item a start state (q0 \(\in\) Q)
 \item a set of accept states (F \(\subset\) Q)
 \end{enumerate}
