@@ -1,8 +1,8 @@
 \documentclass[11pt]{article}
-%\usepackage{palatino}
-%\usepackage{amsmath}
+\usepackage{palatino}
+\usepackage{amsmath}
 \usepackage{fontspec}
-\setmainfont[Ligatures=TeX]{Linux Libertine O}
+%\setmainfont[Ligatures=TeX]{Linux Libertine O}
 \newfontfamily\fallbackfont{DejaVu Sans}
 
 \usepackage{newunicodechar}
@@ -11,7 +11,7 @@
 \newunicodechar{»}{{\fallbackfont »}}
 %\newunicodechar{ε}{{\fallbackfont ε}}
 
-% \usepackage[sc]{mathpazo}
+\usepackage[sc]{mathpazo}
 \linespread{1.05} % Palatino needs more leading (space between lines)
 % \usepackage[T1]{fontenc}
 

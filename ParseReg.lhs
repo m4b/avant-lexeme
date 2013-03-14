@@ -13,6 +13,8 @@ import Regex
 import Data.List
 import Data.Char (isSpace)
 
+import Parselib
+
 data Tokens = 
             AltToken |
             ConcatToken |
@@ -32,43 +34,48 @@ tokenize (c:cs) | isSpace c = tokenize cs
 tokenize (c:cs) = error ("unknown character" 
                ++ show c ++ " in regular expression")
 
--- yea, I know, leave me alone
-parse :: [Tokens] -> Maybe (Regex Char,[Tokens])
-parse (AltToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          case parse tokens' of
-            Just (regex',tokens'') -> 
-                Just ((Alt regex regex'),tokens'')
-            _ -> error "alternation missing 2nd operand"
-      _ -> error "alternation missing 1st operand"
-parse (ConcatToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          case parse tokens' of
-            Just (regex',tokens'') -> 
-                Just ((Concat regex regex'),tokens'')
-            _ -> error "concat missing 2nd operand"
-      _ -> error "concat missing 1st operand"
-parse (KleeneToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          Just ((Repeat regex),tokens')
-      _ -> error "Kleene star missing operand"
-parse (TermToken c:tokens) = Just (Term c, tokens)
-parse (EmptyToken:tokens) = Just (Empty, tokens)
+parseAlt :: Parser (Regex Char)
+parseAlt = do
+  string "|"
+  space
+  regex <- parseRegex'
+  space
+  regex' <- parseRegex'
+  return (Alt regex regex')
 
+parseConcat :: Parser (Regex Char)
+parseConcat = do
+  string "+"
+  space
+  regex <- parseRegex'
+  space
+  regex' <- parseRegex'
+  return (Concat regex regex')
 
-getRegex file = 
-    case (parse . tokenize) file of 
-      Just (regex,[]) ->
-          regex
-      _ -> error "regex contains trailing characters"
+parseKleene :: Parser (Regex Char)
+parseKleene = do
+  string "*"
+  space
+  regex <- parseRegex'
+  return (Repeat regex)
+
+parseTerm :: Parser (Regex Char)
+parseTerm = do
+  char '\''
+  c <- alphanum +++ char ' ' +++ char '\n' +++ char '\t'
+  return (Term c)
+
+parseRegex' :: Parser (Regex Char)
+parseRegex' = do
+  space
+  parseAlt +++ parseConcat +++ parseKleene +++ parseTerm
+
+getRegex' = parse parseRegex'
                   
 -- example
 readRegex = do
-    source <- readFile "regexp1.txt"
-    let regex = getRegex source
+    source <- readFile "regexp2.txt"
+    let regex = getRegex' source
     putStrLn $ show regex
 
 \end{code}
