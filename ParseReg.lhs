@@ -38,7 +38,7 @@ parseKleene alphabet = do
   string "*"
   space
   regex <- parseRegex alphabet
-  return (Repeat regex)
+  return (Kleene regex)
 
 parseTerm :: Alphabet -> Parser (Regex Char)
 parseTerm alphabet = do

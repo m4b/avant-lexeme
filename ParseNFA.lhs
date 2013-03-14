@@ -18,9 +18,7 @@ nfa' = do
   string "nfa" >> newline
   string "end;" >> newline
   return undefined
-  
-  
-  
+
   
   
 parseStates :: Stream s m Char => ParsecT s u m [String]

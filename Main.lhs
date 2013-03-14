@@ -63,10 +63,23 @@ import Regex
 import Algorithms
 import Input
 
+rconcat (c:[]) acc = Kleene acc
+rconcat (c:cs) acc = 
+    rconcat cs (Alt (regex c) acc)
+
+alternate (c:[]) = regex c
+alternate (c:cs) =
+    Alt (regex c) (alternate cs)
+
 main = do
-  source <- readFile "regexp2.txt"
-  let regex = getRegex source
-  putStrLn $ show regex
+  source <- readFile "tests/lexdesc2.txt"
+  testfile <- readFile "tests/testfile2.txt"
+  let desc = getLang source
+  let regex = Kleene (alternate (classes desc))
+  let test = (match . hopcroft . subsetConstruction . thompson) regex
+  putStrLn $ show (test testfile)
+  putStrLn $ show desc
+
 
 \end{code}
 

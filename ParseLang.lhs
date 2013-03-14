@@ -24,26 +24,39 @@ data LexDesc =
 
 type Identifier = String
 data Relevance = Relevant | Irrelevant | Discard 
-                 deriving Show
+                 
+instance Show Relevance where
+    show (Relevant) = "relevant"
+    show (Irrelevant) = "irrelevant"
+    show (Discard) = "discard"
 
 data Class = Class {
       name :: Identifier,
       regex :: Regex Char,
-      relevance :: Relevance} deriving Show
+      relevance :: Relevance}
+
+instance Show Class where
+    show c = "class " ++ name c ++ 
+             show (regex c) ++ 
+             show (relevance c) ++
+             " end;"
 
 data Desc = Desc {
     language :: String,
-    alphabet :: [Char],
+    symbols :: [Char],
     classes :: [Class]
-    } deriving Show
+    } 
 
-showAlphabet a = intersperse '\'' a
+showAlphabet a = "'" ++ (intersperse '\'' a)
 
-{-instance Show (Desc -> Identifier -> (Regex Char) -> Relevance) where
-    show Desc l a c = 
-        "language: " ++ show l ++ "\n"
-        "alphabet: " ++ showAlphabet a ++ "\nhello"
-  -}      
+instance Show Desc where
+    show desc = 
+         "language: " ++ language desc ++ "\n" ++
+         "alphabet: " ++
+         show (showAlphabet (symbols desc)) ++
+         " end;" ++ "\n" ++
+         "classes: "  ++ show (classes desc) ++ "\n" ++ 
+         " end;"
 
 parseLangIdentifier :: Parser String
 parseLangIdentifier = do
@@ -82,6 +95,11 @@ parseLang = do
   space
   string "end;"
   return (Desc language alphabet classes)
+
+getLang file = 
+    case (parse parseLang) file of
+      [] -> error "Could not parse lexical description."
+      regex -> (fst . head) regex
 
 -- example
 readLang1 = do
