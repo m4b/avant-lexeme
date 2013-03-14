@@ -8,12 +8,13 @@ import Parselib
 import Regex
 import ParseReg
 import FiniteStateAutomata
+import Alphabet
 
 import Data.Char (isSpace)
 
 data LexDesc = 
     Language String |
-    Alphabet String
+    Alphabet [Char]
 
 parseElement :: Parser Char
 parseElement = do
@@ -22,14 +23,6 @@ parseElement = do
   c <- alphanum +++ char ' ' +++ char '\n' +++ char '\t'
   return c
 
-parseAlphabet :: Parser [Char]
-parseAlphabet = do
-  space
-  string "alphabet"
-  alphabet <- many parseElement
-  space
-  string "end;"
-  return alphabet
 
 parseLangIdentifier :: Parser String
 parseLangIdentifier = do

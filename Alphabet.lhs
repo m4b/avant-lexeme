@@ -4,7 +4,7 @@ This module provides functions for lexing and parsing alphabets found in input f
 
 \begin{code}
 
-module Alphabet(getAlphabet, gotoGetAlphabet) where
+module Alphabet(parseAlphabet, getAlphabet, gotoGetAlphabet) where
 
 import Data.List
 import Parselib
@@ -55,25 +55,38 @@ scanAlphabet ('e':'n':'d':cs) =
 scanAlphabet (_:cs) = 
     scanAlphabet cs
 
-parseAlphabet [] = []
-parseAlphabet (AlphabetToken:ts) = 
-    parseAlphabet ts
-parseAlphabet (Symbol c:ts) = 
-    c:parseAlphabet ts
-parseAlphabet (EndToken:ts) =
+parseAlphabet' [] = []
+parseAlphabet' (AlphabetToken:ts) = 
+    parseAlphabet' ts
+parseAlphabet' (Symbol c:ts) = 
+    c:parseAlphabet' ts
+parseAlphabet' (EndToken:ts) =
     []
 
-getAlphabet' = parseAlphabet . scanAlphabet . gotoAlphabet
+getAlphabet' = parseAlphabet' . scanAlphabet . gotoAlphabet
+
+-- this was not a fune bug to track down
+parseEscapedChar = 
+      do {string "\\n"; return '\n'}
+  +++ do {string "\\t"; return '\t'}
+  +++ do {string "\\" ; return '\\'}
+  +++ do {string "\\v"; return '\v'}
+  +++ do {string "\\r"; return '\r'}
+  +++ do {string "\\b"; return '\b'}
+  +++ do {string "\\a"; return '\a'}
+  +++ do {string "\\f"; return '\f'}
 
 parseElement :: Parser Char
 parseElement = do
   space
   char '\''
-  c <- alphanum +++ char ' ' +++ char '\n' +++ char '\t'
+  c <- alphanum +++ char ' ' 
+       +++ char '\n' +++ char '\t'
+       +++ parseEscapedChar
   return c
 
-parseAlphabet' :: Parser [Char]
-parseAlphabet' = do
+parseAlphabet :: Parser [Char]
+parseAlphabet = do
   space
   string "alphabet"
   alphabet <- many parseElement
@@ -82,13 +95,13 @@ parseAlphabet' = do
   return alphabet
 
 getAlphabet file = 
-    case (parse parseAlphabet') file of
+    case (parse parseAlphabet) file of
       [] -> error "Alphabet is empty (no alphabet provided)."
       regex -> (fst . head) regex
 
 -- to skip beginning contents and read alphabet
 gotoGetAlphabet file = 
-    case (parse parseAlphabet') (gotoAlphabet file) of
+    case (parse parseAlphabet) (gotoAlphabet file) of
       [] -> error "Alphabet is empty (no alphabet provided)."
       regex -> (fst . head) regex
 
