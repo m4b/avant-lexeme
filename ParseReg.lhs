@@ -8,58 +8,79 @@ Parsing is divided into a function for each regular expression.  It handles asci
 
 module ParseReg (getRegex) where
 
--- alphabet not being used, need to check for membership
--- i suppose
 import Alphabet
 import Regex
 
 import Parselib
 
-parseAlt :: Parser (Regex Char)
-parseAlt = do
+type Alphabet = [Char]
+
+parseAlt :: Alphabet-> Parser (Regex Char)
+parseAlt alphabet = do
   string "|"
   space
-  regex <- parseRegex'
+  regex <- parseRegex' alphabet
   space
-  regex' <- parseRegex'
+  regex' <- parseRegex' alphabet
   return (Alt regex regex')
 
-parseConcat :: Parser (Regex Char)
-parseConcat = do
+parseConcat :: Alphabet -> Parser (Regex Char)
+parseConcat alphabet = do
   string "+"
   space
-  regex <- parseRegex'
+  regex <- parseRegex' alphabet
   space
-  regex' <- parseRegex'
+  regex' <- parseRegex' alphabet
   return (Concat regex regex')
 
-parseKleene :: Parser (Regex Char)
-parseKleene = do
+parseKleene :: Alphabet -> Parser (Regex Char)
+parseKleene alphabet = do
   string "*"
   space
-  regex <- parseRegex'
+  regex <- parseRegex' alphabet
   return (Repeat regex)
 
-parseTerm :: Parser (Regex Char)
-parseTerm = do
+parseTerm :: Alphabet -> Parser (Regex Char)
+parseTerm alphabet = do
   char '\''
   c <- alphanum +++ char ' ' +++ char '\n' +++ char '\t'
-  return (Term c)
+  if not (elem c alphabet) then
+      let msg = "Regular expression contains terminal "
+                ++ show c 
+                ++ " which is not an element of the"
+                ++ " alphabet provided." in
+       error msg
+  else
+      return (Term c)
 
-parseRegex' :: Parser (Regex Char)
-parseRegex' = do
+parseRegex' :: Alphabet -> Parser (Regex Char)
+parseRegex' alphabet = do
   space
-  parseAlt +++ parseConcat +++ parseKleene +++ parseTerm
+  parseAlt alphabet +++
+   parseConcat alphabet +++
+   parseKleene alphabet +++
+   parseTerm alphabet
 
-getRegex file = 
-    case (parse parseRegex') file of
+-- takes an alphabet
+getRegex :: String -> Alphabet -> Regex Char
+getRegex file alphabet = 
+    case (parse (parseRegex' alphabet)) file of
       [] -> error "Could not parse regular expression."
       regex -> (fst . head) regex
                   
--- example
-readRegex = do
-    source <- readFile "regexp2.txt"
-    let regex = getRegex source
+-- example, should error
+readRegex1 = do
+    source <- readFile "regexp3.txt"
+    -- get alphabet before, because alphabet is after
+    let alphabet = gotoGetAlphabet source
+    let regex = getRegex source alphabet
     putStrLn $ show regex
+
+readRegex file = do
+    source <- readFile file
+    let alphabet = gotoGetAlphabet source
+    let regex = getRegex source alphabet
+    putStrLn $ show regex
+
 
 \end{code}

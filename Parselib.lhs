@@ -34,7 +34,7 @@ combinators that were not discussed in the article for reasons of space:
 module Parselib
    (Parser, item, sat, (+++), string, many, many1, sepby, sepby1,
     chainl, chainl1, char, digit, lower, upper, letter, alphanum,
-    symb, ident, nat, int, token, parse, space, integer) where
+    symb, identifier, ident, nat, int, token, parse, space, integer) where
 
 import Data.Char
 import Control.Monad
