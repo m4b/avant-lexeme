@@ -58,8 +58,12 @@ class (Ord (Alpha f),
   start     :: f -> Int
   trans     :: f -> M.Map Int (FSAVal f)
   states    :: f -> S.Set Int
-  states fsa = S.union (S.fromList . M.keys $ (trans fsa))
-               (accepting fsa)
+  states fsa = S.unions [(S.fromList . M.keys . trans $ fsa), 
+                         (accepting fsa),
+                         (S.fromList . concatMap sndList . M.elems . trans $ fsa)]
+
+sndList :: Listable m => m -> [Int]
+sndList = map snd . toList
 
 fsaShow :: (FSA f) => f -> String
 fsaShow fsa = "{alphabet=" 
@@ -155,6 +159,16 @@ simpleDFA = DFA' alpha states accepting start where
             (1, M.fromList [('b', 0), ('c', 2)])]
   start = 0
   accepting = S.fromList [2]
+
+deadStateDFA :: DFA' Char
+deadStateDFA = DFA' alpha states accepting start where
+  alpha = S.fromList "ab"
+  states = M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
+    trans0 = M.fromList [('a', 1), ('b', 2)]
+    trans1 = M.fromList [('b', 3)]
+    trans2 = M.fromList [('a', 3)]
+  accepting = S.fromList [1, 2]
+  start = 0
 
 -- NEW -------------------------
 
