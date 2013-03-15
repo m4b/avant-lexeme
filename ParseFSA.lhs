@@ -1,8 +1,8 @@
-\subsection{Parse an NFA}
+\subsection{Parse an FSA}
 
 \begin{code}
 {-# LANGUAGE FlexibleContexts #-}
-module ParseNFA(parseNFA,parseDFA) where
+module ParseFSA(parseNFA,parseDFA) where
 
 import Data.Functor
 import qualified Data.Set as S
