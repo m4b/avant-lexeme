@@ -3,13 +3,11 @@
 \begin{code}
 
 module Input(
-             module ParseDFA,
-  --           module ParseNFA,
+             module ParseFSA,
              module ParseReg,
              module ParseLang) where
 
-import ParseDFA
---import ParseNFA
+import ParseFSA
 import ParseReg
 import ParseLang
 
