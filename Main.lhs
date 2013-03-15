@@ -54,9 +54,11 @@ Lastly, we decided to write a lexer generator for our final output.  That is, we
 %include ParseFSA.lhs
 %include ParseLang.lhs
 
+%include ScannerGenerator.lhs
+
 \section{Module: Main.lhs}
 
-The final module, |Main|, puts everything together.
+The final module, |Main|, puts everything together, by simply calling the function |scannerGenerator| on a lexical description.
 
 \begin{code}
 
@@ -64,11 +66,6 @@ module Main where
 
 import ScannerGenerator(scannerGenerator)
 
-\end{code}
-
-From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given string.
-
-\begin{code}
 main = do
   contents <- getContents
   putStr $ scannerGenerator contents

@@ -1,3 +1,7 @@
+\subsection{Scanner Generator}
+
+This module performs the work necessary to output a scanner, thus making our implementation a scanner \emph{generator}.
+
 \begin{code}
 module ScannerGenerator(scannerGenerator) where
 import Regex
@@ -18,8 +22,10 @@ scannerGenerator desc = program where
             "import FiniteStateAutomata(DFA'())\n" ++
             "import Recognize(match)\n" ++
             "dfa :: DFA' Char\n" ++ 
-            "dfa = read \"" ++ (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
-            "main = do { contents <- getContents; putStrLn $ (show (match dfa contents)) }"
+            "dfa = read \"" ++ 
+            (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
+            "main = do { contents <- getContents;" ++
+            " putStrLn $ (show (match dfa contents)) }"
 
 replace :: (Eq a) => a -> [a] -> [a] -> [a]
 replace a b = concatMap replace' where

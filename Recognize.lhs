@@ -19,7 +19,7 @@ match :: (Ord a, Show a) => DFA' a -> [a] -> Bool
 match dfa = match' dfa (start dfa) where
   match' dfa curr [] = S.member curr (accepting dfa)
   match' dfa curr (c:cs) = 
-  let labelMap = M.lookup curr (trans dfa) in 
+   let labelMap = M.lookup curr (trans dfa) in 
     case labelMap of
       Nothing -> False
       Just map -> let labels = M.lookup c map in 
