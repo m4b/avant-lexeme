@@ -62,30 +62,29 @@ The final module, |Main|, puts everything together.
 
 module Main where
 
-import FiniteStateAutomata
-import Regex
-import Algorithms
-import Input
-
-alternate (c:[]) = regex c
-alternate (c:cs) =
-    Alt (regex c) (alternate cs)
+import ScannerGenerator(scannerGenerator)
 
 \end{code}
 
 From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given string.
 
 \begin{code}
-
 main = do
+  contents <- getContents
+  putStr $ scannerGenerator contents
+
+\end{code}
+
+Example for interpreted scanner.
+
+\begin{verbatim}
   testfile <- readFile "tests/testfile3.txt"
   desc <- getLang "tests/lexdesc3.txt"
   let regex = Kleene (alternate (classes desc))
   let test = ((match . hopcroft . subsetConstruction . thompson) regex) testfile
   putStrLn $ show test 
   putStrLn $ show desc
+\end{verbatim}
 
-
-\end{code}
 
 \end{document}
