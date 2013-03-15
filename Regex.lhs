@@ -15,7 +15,12 @@ data Regex a = Alt (Regex a) (Regex a)
              | Term a
              | Empty deriving Show
 
-{-instance Show (Regex Char) where
+\end{code}
+
+We wrote a pretty infix printer:
+
+\begin{verbatim}
+instance Show (Regex Char) where
     show (Alt r1 r2   ) = 
         "(" ++ (show r1) ++ "|" ++ (show r2) ++ ")"
     show (Concat r1 r2) = 
@@ -23,5 +28,6 @@ data Regex a = Alt (Regex a) (Regex a)
     show (Kleene r1)    = "(" ++ (show r1) ++ "*" ++ ")"
     show (Term c)       = '\'':c:[]
     show (Empty)        = "\\epsilon"
--}
-\end{code}
+\end{verbatim}
+
+However, it was determined that writing a lexer generator would be easier if we used the default show for regular expressions.

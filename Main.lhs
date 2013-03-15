@@ -23,7 +23,7 @@
 %include polycode.fmt
 
 \title{CS454 Project 1:\\« Lexer Analysis »\\}
-\author{\textsc{M. Barney, J. Conrad, and S. Patel}}
+\author{\textsc{M. Barney, J. Collard, and S. Patel}}
 \date{\today}
 
 \begin{document}
@@ -63,22 +63,22 @@ import Regex
 import Algorithms
 import Input
 
-rconcat (c:[]) acc = Kleene acc
-rconcat (c:cs) acc = 
-    rconcat cs (Alt (regex c) acc)
-
 alternate (c:[]) = regex c
 alternate (c:cs) =
     Alt (regex c) (alternate cs)
 
+\end{code}
+
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given strin.
+
+\begin{code}
+
 main = do
-  source <- readFile "tests/lexdesc2.txt"
   testfile <- readFile "tests/testfile2.txt"
-  let desc = getLang source
+  desc <- getLang "tests/lexdesc2.txt"
   let regex = Kleene (alternate (classes desc))
-  let test = (thompson) regex
+  let test = (subsetConstruction . thompson) regex
   putStrLn $ show test 
---  putStrLn $ show (test testfile)
   putStrLn $ show desc
 
 
