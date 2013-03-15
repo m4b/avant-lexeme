@@ -76,6 +76,9 @@ From a given lexical description, we first alternate all of the regular expressi
 main = do
   testfile <- readFile "tests/testfile2.txt"
   desc <- getLang "tests/lexdesc2.txt"
+--  let (Desc _ _ classes) = desc
+--      (greek:integer:floatingPoint:integerArithmatic:punctuation:whitespace:[]) = classes
+--      (Class _ regex _) = whitespace
   let regex = Kleene (alternate (classes desc))
   let test = (subsetConstruction . thompson) regex
   putStrLn $ show test 

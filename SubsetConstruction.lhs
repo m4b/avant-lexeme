@@ -11,6 +11,8 @@ import Data.Maybe
 import FiniteStateAutomata
 import qualified Data.Map as M
 import qualified Data.Set as S
+import Debug.Trace
+
 
 type LabelMap = M.Map (S.Set Int) Int
 
@@ -109,26 +111,40 @@ class Constructable c where
 
 instance Constructable Int where
   closure nfa state = 
-      closure' (S.singleton state) nfa state where
-    closure' acc nfa state = 
-        if done then acc' else acc'' where
-      done = edges == Nothing || eps == S.singleton state
-      edges = M.lookup state . trans $ nfa
-      eps = S.union (S.singleton state)
-            (S.map snd . S.filter isEpsilon . 
-              fromJust $ edges)
-      eps' = S.difference eps acc
-      isEpsilon (label, _) = label == epsilon
-      acc' = S.union acc (S.singleton state)
-      acc'' = S.union acc' . S.unions . S.toList . 
-              S.map (closure' acc' nfa) $ eps'
-
-  move nfa sym state = 
+      fst . closure' nfa (S.singleton state) M.empty $ state where
+    closure' nfa acc memoize state = 
+      case (M.lookup (acc, state) memoize) of
+        Nothing -> 
+           if done then (acc', memoize') else (acc'', memoize'') where
+             done = edges == Nothing || eps == S.singleton state
+             edges = M.lookup state . trans $ nfa
+             eps = S.union (S.singleton state)
+                 (S.map snd . S.filter isEpsilon . 
+                  fromJust $ edges)
+             eps' = S.difference eps acc
+             isEpsilon (label, _) = label == epsilon
+             acc' = S.union acc (S.singleton state)
+             acc'' = S.union acc' . S.unions $ sets
+             memoize' = M.insert (acc, state) acc' memoize
+             (memoize''', sets) = memoMap memoize (closure' nfa acc') . S.toList $ eps'
+             memoize'' = M.insert (acc, state) acc'' memoize'''
+        Just set -> (set, memoize)
+        
+  move nfa sym state =
     if (edges == Nothing) then S.empty else eps where
     edges = M.lookup state. trans $ nfa
     eps = S.map snd . S.filter isSym . fromJust $ edges
     isSym (label, _) = 
         label /= Nothing && sym == fromJust label      
+
+--func x = S.map (fst . (closure' memoize acc' nfa))
+
+memoMap :: M.Map k v -> (M.Map k v -> Int -> (v, M.Map k v)) -> [Int] -> ((M.Map k v), [v])
+memoMap = memoMap' [] where
+  memoMap' :: [v] -> M.Map k v -> (M.Map k v -> Int -> (v, M.Map k v)) -> [Int] -> ((M.Map k v), [v])
+  memoMap' acc m _ [] = (m, acc)
+  memoMap' acc m f (x:xs) = memoMap' (a:acc) m' f xs where 
+    (a, m') = f m x
 
 instance Constructable (S.Set Int) where
   closure nfa states = concatMap' (closure nfa) states
@@ -138,14 +154,33 @@ concatMap' :: (Ord a, Ord b) =>
               (a -> S.Set b) -> S.Set a -> S.Set b
 concatMap' f = S.unions . S.toList . S.map f
 
+simpleNFA :: NFA' Char
+simpleNFA = NFA' alpha trans accept st where
+  alpha   = S.empty
+  accept  = S.fromList [0]
+  st      = 0
+  trans   = M.fromList [(0, trans0), (1, trans1)] where
+    trans0 = S.fromList [(Nothing, 1)]
+    trans1 = S.fromList [(Nothing, 0)]
+
 testNFA :: NFA' Char
 testNFA = NFA' alpha trans accept st where
   alpha   = S.empty
   accept  = S.fromList [0, 1]
   st      = 0
   trans   = M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
-    trans0 = S.fromList [(Nothing, 1)]
-    trans1 = S.fromList [(Nothing, 2)]
-    trans2 = S.fromList [(Nothing, 0)]
+    trans0 = S.fromList [(Nothing, 1), (Nothing, 2)]
+    trans1 = S.fromList [(Nothing, 2), (Nothing, 0)]
+    trans2 = S.fromList [(Nothing, 0), (Nothing, 1)]
+
+testNFA' :: NFA' Char
+testNFA' = NFA' alpha trans accept st where
+  alpha   = S.fromList "a"
+  accept  = S.fromList [0, 1]
+  st      = 0
+  trans   = M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
+    trans0 = S.fromList [(Nothing, 1), (Just 'a', 1), (Just 'a', 2)]
+    trans1 = S.fromList [(Just 'a', 2), (Just 'a', 0)]
+    trans2 = S.fromList [(Just 'a', 0), (Just 'a', 1)]
 
 \end{code}
