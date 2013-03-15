@@ -58,32 +58,16 @@ We decided to write each algorithm in the assignment as its own module, in addit
 
 module Main where
 
-import FiniteStateAutomata
-import Regex
-import Algorithms
-import Input
-
-alternate (c:[]) = regex c
-alternate (c:cs) =
-    Alt (regex c) (alternate cs)
+import ScannerGenerator(scannerGenerator)
 
 \end{code}
 
 From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given strin.
 
 \begin{code}
-
 main = do
-  testfile <- readFile "tests/testfile2.txt"
-  desc <- getLang "tests/lexdesc2.txt"
---  let (Desc _ _ classes) = desc
---      (greek:integer:floatingPoint:integerArithmatic:punctuation:whitespace:[]) = classes
---      (Class _ regex _) = whitespace
-  let regex = Kleene (alternate (classes desc))
-  let test = (subsetConstruction . thompson) regex
-  putStrLn $ show test 
-  putStrLn $ show desc
-
+  contents <- getContents
+  putStr $ scannerGenerator contents
 
 \end{code}
 

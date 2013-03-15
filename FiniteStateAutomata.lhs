@@ -111,7 +111,7 @@ showTransitions fsa = map showTransition .
 data DFA' a = DFA' {alpha  :: S.Set a,
                     ss     :: DFAMap a,
                     accept :: S.Set Int,
-                    st     :: Int}
+                    st     :: Int} deriving (Show, Read)
               
 instance (Ord a, Show a) => FSA (DFA' a) where
   type Alpha (DFA' a) = a
@@ -121,8 +121,8 @@ instance (Ord a, Show a) => FSA (DFA' a) where
   start = st
   trans = ss
 
-instance (Ord a, Show a) => Show (DFA' a) where
-  show dfa = "DFA " ++ (fsaShow dfa)
+{-instance (Ord a, Show a) => Show (DFA' a) where
+  show dfa = "DFA " ++ (fsaShow dfa)-}
 
 data NFA' a = NFA' {nalpha  :: S.Set a,
                     nss     :: NFAMap a, 
