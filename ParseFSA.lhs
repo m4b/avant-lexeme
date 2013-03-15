@@ -1,5 +1,11 @@
 \subsection{Parse an FSA}
 
+In this module we parse a description of an DFA or an NFA and return the appropriate data structure.
+
+Since the formal definition of a lexical description of a language does not contain a description of an NFA or a DFA (only regular expressions), this module was simply used on the provided test cases, and for a basic sanity check on whether our implementation for NFAs and DFAs was correct.
+
+It uses Haskell's Parsec library for parsing.
+
 \begin{code}
 {-# LANGUAGE FlexibleContexts #-}
 module ParseFSA(parseNFA,parseDFA) where
@@ -77,7 +83,6 @@ description keyword isNFA = do
   initState <- initialState "initial"
   acceptStates <- statelist "accept" "end;" identifier
   trans <- statelist "transitions" "end;" (transition isNFA)
-  --alphabet <- parseAlphabet
   return $ Description stats initState acceptStates trans
   
 transition :: Stream s m Char => 
@@ -104,17 +109,6 @@ parseStringOrTerm term s = do
    case ter of
      Just t -> return $ Left t
      Nothing -> Right <$> s
-   --str <- (try $ string term) <|> s
-   --return $ if str == term then Left str else Right str
-   
-{--
-parseAlphabet :: Stream s m Char => ParsecT s u m [Char]
-parseAlphabet = do
-  string "alphabet" >> spaces
-  syms <- symbolList
-  string "end"
-  return syms
---}
   
 statelist :: Stream s m Char => 
              String -> 

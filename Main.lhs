@@ -49,8 +49,8 @@ We decided to write each algorithm in the assignment as its own module, in addit
 %include Alphabet.lhs
 %include Input.lhs
 %include ParseReg.lhs
-%include ParseNFA.lhs
-%include ParseDFA.lhs
+%include ParseFSA.lhs
+%include ParseLang.lhs
 
 \section{Module: Main.lhs}
 
@@ -69,15 +69,15 @@ alternate (c:cs) =
 
 \end{code}
 
-From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given strin.
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given string.
 
 \begin{code}
 
 main = do
-  testfile <- readFile "tests/testfile2.txt"
-  desc <- getLang "tests/lexdesc2.txt"
+  testfile <- readFile "tests/testfile3.txt"
+  desc <- getLang "tests/lexdesc3.txt"
   let regex = Kleene (alternate (classes desc))
-  let test = (subsetConstruction . thompson) regex
+  let test = ((match . hopcroft . subsetConstruction . thompson) regex) testfile
   putStrLn $ show test 
   putStrLn $ show desc
 
