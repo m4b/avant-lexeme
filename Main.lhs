@@ -22,7 +22,7 @@
 
 %include polycode.fmt
 
-\title{CS454 Project 1:\\« Lexer Analysis »\\}
+\title{CS454 Project 1:\\« Lexer Generator »\\}
 \author{\textsc{M. Barney, J. Collard, and S. Patel}}
 \date{\today}
 
@@ -36,6 +36,8 @@ This is the final report for project 1, CS454, on lexical analysis.
 Our first design decision was to use Haskell's literate mode to prepare all of our code.  Secondly, we decided to use the distributed revision control software \verb=git= for collaborative coding.
 
 We decided to write each algorithm in the assignment as its own module, in addition to modules describing finite state automata (FSA) and regular expressions.
+
+Lastly, we decided to write a lexer generator for our final output.  That is, we parse a lexical description, and return a Haskell source file to be compiled.  Once suitably compiled, the binary will accept text files which are accepted if and only if they are strings accepted by the language given in the lexical description.
 
 %include FiniteStateAutomata.lhs
 %include Regex.lhs
@@ -53,6 +55,8 @@ We decided to write each algorithm in the assignment as its own module, in addit
 %include ParseLang.lhs
 
 \section{Module: Main.lhs}
+
+The final module, |Main|, puts everything together.
 
 \begin{code}
 

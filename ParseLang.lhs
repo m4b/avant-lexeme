@@ -2,6 +2,8 @@
 
 In this module we parse a lexical description of a language, and prepare it for parsing with respect to our previous data structures and algorithms.
 
+It also uses Hutton's Parselib.
+
 \begin{code}
 
 {-# LANGUAGE TypeFamilies,
@@ -18,9 +20,15 @@ import Alphabet
 import Data.Char (isSpace)
 import Data.List (intersperse)
 
-data LexDesc = 
-    Language String |
-    Alphabet [Char] 
+\end{code}
+
+We use a data structure |Desc| to internally represent a lexical description.  |Desc| is a basic record type, with three functions, |language|, |symbols|, and |classes| which return the name of the language as a string, the alphabet, and a list of classes given by the lexical description, respectively.
+
+The data structure |Class| is another record type with three functions, |name|, |regex|, and |relevance|, which return the name of the class, the regular expression which describes it, and its semantic relevance, respectively.
+
+Thus to obtain obtain an NFA equivalent of the regular expression for the first class given in a parsed lexical description \emph l, we write: |(thompson . regex . head . classes) l|.
+
+\begin{code}
 
 type Identifier = String
 data Relevance = Relevant | Irrelevant | Discard 
@@ -58,6 +66,12 @@ instance Show Desc where
          "classes: "  ++ "\n" ++ 
          unlines (map show (classes desc)) ++
          " end;"
+
+\end{code}
+
+The remaining functions parse a text file of a lexical description, and deposit that description (if it is well-formed), into our data structure.
+
+\begin{code}
 
 parseLangIdentifier :: Parser String
 parseLangIdentifier = do
