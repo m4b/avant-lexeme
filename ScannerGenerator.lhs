@@ -2,6 +2,11 @@
 
 This module performs the work necessary to output a scanner, thus making our implementation a scanner \emph{generator}.
 
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given string.
+
+We then construct (and output to \verb=stdout=) a Haskell program, which when compiled, will accept only those strings given by  the language description that we were originally given.
+
+
 \begin{code}
 module ScannerGenerator(scannerGenerator) where
 import Regex
