@@ -96,10 +96,12 @@ parseLang = do
   string "end;"
   return (Desc language alphabet classes)
 
-getLang file = 
-    case (parse parseLang) file of
-      [] -> error "Could not parse lexical description."
-      regex -> (fst . head) regex
+getLang :: FilePath -> IO Desc
+getLang file = do
+  source <- readFile file
+  case (parse parseLang) source of
+    [] -> error "Could not parse lexical description."
+    regex -> return $ (fst . head) regex
 
 -- example
 readLang1 = do
@@ -111,6 +113,7 @@ readLang file = do
   source <- readFile file
   let x = (parse parseLang) source
   putStrLn $ show x
+
 
 
 \end{code}

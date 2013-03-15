@@ -13,9 +13,9 @@ data Regex a = Alt (Regex a) (Regex a)
              | Concat (Regex a) (Regex a)
              | Kleene (Regex a)
              | Term a
-             | Empty 
+             | Empty deriving Show
 
-instance Show (Regex Char) where
+{-instance Show (Regex Char) where
     show (Alt r1 r2   ) = 
         "(" ++ (show r1) ++ "|" ++ (show r2) ++ ")"
     show (Concat r1 r2) = 
@@ -23,5 +23,5 @@ instance Show (Regex Char) where
     show (Kleene r1)    = "(" ++ (show r1) ++ "*" ++ ")"
     show (Term c)       = show c
     show (Empty)        = "\\epsilon"
-
+-}
 \end{code}
