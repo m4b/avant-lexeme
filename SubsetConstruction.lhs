@@ -120,7 +120,7 @@ instance Constructable Int where
       eps' = S.difference eps acc
       isEpsilon (label, _) = label == epsilon
       acc' = S.union acc (S.singleton state)
-      acc'' = S.unions . S.toList . 
+      acc'' = S.union acc' . S.unions . S.toList . 
               S.map (closure' acc' nfa) $ eps'
 
   move nfa sym state = 
@@ -137,5 +137,15 @@ instance Constructable (S.Set Int) where
 concatMap' :: (Ord a, Ord b) => 
               (a -> S.Set b) -> S.Set a -> S.Set b
 concatMap' f = S.unions . S.toList . S.map f
+
+testNFA :: NFA' Char
+testNFA = NFA' alpha trans accept st where
+  alpha   = S.empty
+  accept  = S.fromList [0, 1]
+  st      = 0
+  trans   = M.fromList [(0, trans0), (1, trans1), (2, trans2)] where
+    trans0 = S.fromList [(Nothing, 1)]
+    trans1 = S.fromList [(Nothing, 2)]
+    trans2 = S.fromList [(Nothing, 0)]
 
 \end{code}
