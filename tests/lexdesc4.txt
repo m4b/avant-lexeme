@@ -1,0 +1,8 @@
+language z++ 
+alphabet
+'i 'n 'g
+
+end;
+ 
+class suffix is + + 'i 'n 'g irrelevant end;
+end;

@@ -4,12 +4,15 @@ Our solutions to the ``in-memory'' algorithms given in \S1.2 have been modulariz
 
 \begin{code}
 module Algorithms(module Thompson,
-                  module Recognize,
-                  module SubsetConstruction) where
+                  module SubsetConstruction,
+                  module Hopcroft,
+                  module Recognize
+) where
 
 import Thompson
-import Recognize
 import SubsetConstruction
+import Hopcroft
+import Recognize
 
 \end{code}
 

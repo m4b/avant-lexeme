@@ -1,0 +1,18 @@
+dfa 
+states 
+s1
+s2
+end;
+initial
+s1
+accept 
+s1
+end; 
+transitions 
+s1 'a --> s2
+s2 'a --> s1
+end;
+
+alphabet
+'a 'b 'c
+end

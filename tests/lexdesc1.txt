@@ -1,0 +1,10 @@
+language z++ 
+alphabet
+'b 'a 'o 'r 'i 'n 'g ' '\n
+
+end;
+ 
+class base is + 'b + * | 'a 'o 'r relevant end;
+class suffix is + + 'i 'n 'g irrelevant end;
+class whitespace is * | ' '\n  discard end;
+end;

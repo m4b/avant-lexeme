@@ -4,12 +4,12 @@
 
 module Input(
              module ParseDFA,
-             module ParseNFA,
+  --           module ParseNFA,
              module ParseReg,
              module ParseLang) where
 
 import ParseDFA
-import ParseNFA
+--import ParseNFA
 import ParseReg
 import ParseLang
 

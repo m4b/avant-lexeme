@@ -1,8 +1,8 @@
 \documentclass[11pt]{article}
-%\usepackage{palatino}
-%\usepackage{amsmath}
+\usepackage{palatino}
+\usepackage{amsmath}
 \usepackage{fontspec}
-\setmainfont[Ligatures=TeX]{Linux Libertine O}
+%\setmainfont[Ligatures=TeX]{Linux Libertine O}
 \newfontfamily\fallbackfont{DejaVu Sans}
 
 \usepackage{newunicodechar}
@@ -11,7 +11,7 @@
 \newunicodechar{»}{{\fallbackfont »}}
 %\newunicodechar{ε}{{\fallbackfont ε}}
 
-% \usepackage[sc]{mathpazo}
+\usepackage[sc]{mathpazo}
 \linespread{1.05} % Palatino needs more leading (space between lines)
 % \usepackage[T1]{fontenc}
 
@@ -23,7 +23,7 @@
 %include polycode.fmt
 
 \title{CS454 Project 1:\\« Lexer Analysis »\\}
-\author{\textsc{M. Barney, J. Conrad, and S. Patel}}
+\author{\textsc{M. Barney, J. Collard, and S. Patel}}
 \date{\today}
 
 \begin{document}
@@ -43,10 +43,14 @@ We decided to write each algorithm in the assignment as its own module, in addit
 %include Algorithms.lhs
 %include Thompson.lhs
 %include SubsetConstruction.lhs
+%include Hopcroft.lhs
+%include Recognize.lhs
 
 %include Alphabet.lhs
 %include Input.lhs
 %include ParseReg.lhs
+%include ParseNFA.lhs
+%include ParseDFA.lhs
 
 \section{Module: Main.lhs}
 
@@ -59,8 +63,24 @@ import Regex
 import Algorithms
 import Input
 
-main =
-     putStrLn "((λ.x x) helloworld)"
+alternate (c:[]) = regex c
+alternate (c:cs) =
+    Alt (regex c) (alternate cs)
+
+\end{code}
+
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given strin.
+
+\begin{code}
+
+main = do
+  testfile <- readFile "tests/testfile2.txt"
+  desc <- getLang "tests/lexdesc2.txt"
+  let regex = Kleene (alternate (classes desc))
+  let test = (subsetConstruction . thompson) regex
+  putStrLn $ show test 
+  putStrLn $ show desc
+
 
 \end{code}
 

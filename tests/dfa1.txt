@@ -1,0 +1,28 @@
+
+
+dfa 
+states 
+blah1
+blah2
+blah3
+blah4
+blah5
+end;
+initial
+blah1
+accept 
+blah2
+blah4
+end; 
+transitions 
+blah1 'a --> blah2
+blah2 'a --> blah2
+blah2 'b --> blah3
+blah3 'b --> blah4
+blah3 'c --> blah5
+blah5 'c --> blah4
+end;
+
+alphabet
+'a 'b 'c
+end

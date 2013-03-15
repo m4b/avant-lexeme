@@ -9,6 +9,12 @@ import FiniteStateAutomata
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+\end{code}
+
+The function |match| takes a DFA and a string as input, and returns whether that string is accepted by that DFA.  It is fairly straightforward.
+
+\begin{code}
+
 match :: (Ord a, Show a) => DFA' a -> [a] -> Bool
 match dfa = match' dfa (start dfa) where
   match' dfa curr [] = S.member curr (accepting dfa)

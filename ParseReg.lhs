@@ -1,74 +1,85 @@
 \subsection{Parse a Regular Expression}
 
-This module inputs, lexes, and parses a regular expression from a text file.
+This module inputs, lexes, and parses a regular expression from a text file.  It uses Hutton's Parselib library.
+
+Parsing is divided into a function for each regular expression.  It handles ascii spaces, newlines, tabs, etc.  I.e., the printable subset of ascii, as required by the spec.
 
 \begin{code}
 
-module ParseReg where
+module ParseReg (getRegex,parseRegex) where
 
--- alphabet not being used, need to check for membership
--- i suppose
 import Alphabet
 import Regex
-import Data.List
-import Data.Char (isSpace)
 
-data Tokens = 
-            AltToken |
-            ConcatToken |
-            KleeneToken | 
-            TermToken Char |
-            EmptyToken deriving (Show, Eq)
+import Parselib
 
+type Alphabet = [Char]
 
-tokenize [] = []
-tokenize ('|':cs) = AltToken:tokenize cs
-tokenize ('+':cs) = ConcatToken:tokenize cs
-tokenize ('*':cs) = KleeneToken:tokenize cs
-tokenize ('\'':' ':cs) = EmptyToken:tokenize cs
-tokenize ('\'':c:cs) = TermToken c:tokenize cs
-tokenize (cs) | isPrefixOf "alphabet" cs = []
-tokenize (c:cs) | isSpace c = tokenize cs
-tokenize (c:cs) = error ("unknown character" 
-               ++ show c ++ " in regular expression")
+parseAlt :: Alphabet-> Parser (Regex Char)
+parseAlt alphabet = do
+  string "|"
+  space
+  regex <- parseRegex alphabet
+  space
+  regex' <- parseRegex alphabet
+  return (Alt regex regex')
 
--- yea, I know, leave me alone
-parse :: [Tokens] -> Maybe (Regex Char,[Tokens])
-parse (AltToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          case parse tokens' of
-            Just (regex',tokens'') -> 
-                Just ((Alt regex regex'),tokens'')
-            _ -> error "alternation missing 2nd operand"
-      _ -> error "alternation missing 1st operand"
-parse (ConcatToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          case parse tokens' of
-            Just (regex',tokens'') -> 
-                Just ((Concat regex regex'),tokens'')
-            _ -> error "concat missing 2nd operand"
-      _ -> error "concat missing 1st operand"
-parse (KleeneToken:tokens) = 
-    case parse tokens of
-      Just (regex,tokens') -> 
-          Just ((Repeat regex),tokens')
-      _ -> error "Kleene star missing operand"
-parse (TermToken c:tokens) = Just (Term c, tokens)
-parse (EmptyToken:tokens) = Just (Empty, tokens)
+parseConcat :: Alphabet -> Parser (Regex Char)
+parseConcat alphabet = do
+  string "+"
+  space
+  regex <- parseRegex alphabet
+  space
+  regex' <- parseRegex alphabet
+  return (Concat regex regex')
 
+parseKleene :: Alphabet -> Parser (Regex Char)
+parseKleene alphabet = do
+  string "*"
+  space
+  regex <- parseRegex alphabet
+  return (Kleene regex)
 
-getRegex file = 
-    case (parse . tokenize) file of 
-      Just (regex,[]) ->
-          regex
-      _ -> error "regex contains trailing characters"
+parseTerm :: Alphabet -> Parser (Regex Char)
+parseTerm alphabet = do
+  c <- parseElement
+  if not (elem c alphabet) then
+      let msg = "Regular expression contains terminal "
+                ++ show c 
+                ++ " which is not an element of the"
+                ++ " alphabet provided." in
+       error msg
+  else
+      return (Term c)
+
+parseRegex :: Alphabet -> Parser (Regex Char)
+parseRegex alphabet = do
+  space
+  parseAlt alphabet +++
+   parseConcat alphabet +++
+   parseKleene alphabet +++
+   parseTerm alphabet
+
+-- takes an alphabet
+getRegex :: String -> Alphabet -> Regex Char
+getRegex file alphabet = 
+    case (parse (parseRegex alphabet)) file of
+      [] -> error "Could not parse regular expression."
+      regex -> (fst . head) regex
                   
--- example
-readRegex = do
-    source <- readFile "regexp1.txt"
-    let regex = getRegex source
+-- example, should error
+readRegex1 = do
+    source <- readFile "regexp3.txt"
+    -- get alphabet before, because alphabet is after
+    let alphabet = gotoGetAlphabet source
+    let regex = getRegex source alphabet
     putStrLn $ show regex
+
+readRegex file = do
+    source <- readFile file
+    let alphabet = gotoGetAlphabet source
+    let regex = getRegex source alphabet
+    putStrLn $ show regex
+
 
 \end{code}
