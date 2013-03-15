@@ -139,9 +139,8 @@ instance Constructable Int where
 
 --func x = S.map (fst . (closure' memoize acc' nfa))
 
-memoMap :: M.Map k v -> (M.Map k v -> Int -> (v, M.Map k v)) -> [Int] -> ((M.Map k v), [v])
+memoMap :: M.Map k v -> (M.Map k v -> b -> (v, M.Map k v)) -> [b] -> ((M.Map k v), [v])
 memoMap = memoMap' [] where
-  memoMap' :: [v] -> M.Map k v -> (M.Map k v -> Int -> (v, M.Map k v)) -> [Int] -> ((M.Map k v), [v])
   memoMap' acc m _ [] = (m, acc)
   memoMap' acc m f (x:xs) = memoMap' (a:acc) m' f xs where 
     (a, m') = f m x
