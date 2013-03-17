@@ -64,11 +64,16 @@ The final module, |Main|, puts everything together, by simply calling the functi
 
 module Main where
 
+import System.Environment
 import ScannerGenerator(scannerGenerator)
 
 main = do
-  contents <- getContents
-  putStr $ scannerGenerator contents
+  args <- getArgs
+  let [contents] = args
+  file <- readFile contents
+--contents <- getContents
+
+  putStrLn $ scannerGenerator file
 
 \end{code}
 

@@ -12,6 +12,7 @@ module ScannerGenerator(scannerGenerator) where
 import Regex
 import Algorithms
 import Input
+import System.Environment(getArgs)
 
 alternate :: [Class] -> Regex Char
 alternate [] = Empty
@@ -26,11 +27,14 @@ scannerGenerator desc = program where
   program = "module Main where\n" ++
             "import FiniteStateAutomata(DFA'())\n" ++
             "import Recognize(match)\n" ++
+            "import System.Environment(getArgs)\n" ++
             "dfa :: DFA' Char\n" ++ 
             "dfa = read \"" ++ 
             (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
-            "main = do { contents <- getContents;" ++
-            " putStrLn $ (show (match dfa contents)) }"
+            "main = do \n \t args <- getArgs\n" ++
+            "\t let [contents] = args\n" ++  
+            "\t string <- readFile contents\n" ++
+            "\t putStrLn $ (show (match dfa string))\n"
 
 replace :: (Eq a) => a -> [a] -> [a] -> [a]
 replace a b = concatMap replace' where
