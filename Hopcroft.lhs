@@ -2,36 +2,7 @@
 
 In this module we provide our solution for minimizing a given deterministic finite state automaton.
 
-The pseudocode for this algorithm from \url{https://en.wikipedia.org/wiki/DFA_minimization} is as follows:
-
-\begin{verbatim}
-
-P := {F, Q \ F};
-W := {F};
-while (W is not empty) do
-     choose and remove a set A from W
-     for each c in ∑ do
-          let X be the set of states 
-           for which a transition 
-           on c leads to a state in A
-          for each set Y in P for which 
-           X ∩ Y is nonempty do
-               replace Y in P by the 
-                two sets X ∩ Y and Y \ X
-               if Y is in W
-                    replace Y in W by the same two sets
-               else
-                    if |X ∩ Y| <= |Y \ X|
-                         add X ∩ Y to W
-                    else
-                         add Y \ X to W
-          end;
-     end;
-end;
-
-\end{verbatim}
-
-
+We followed the algorithm given on page 30 of \emph{Basics of Compiler Design}.
 
 \begin{code}
 

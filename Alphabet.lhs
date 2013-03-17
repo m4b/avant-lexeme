@@ -50,6 +50,7 @@ gotoAlphabet [] =  []
 gotoAlphabet cs | isPrefixOf "alphabet" cs = cs
 gotoAlphabet (c:cs) =  gotoAlphabet cs
 
+-- old scanner
 scanAlphabet [] = []
 scanAlphabet ('a':'l':'p':'h':'a':'b':'e':'t':cs) = 
     AlphabetToken:scanAlphabet cs
@@ -60,6 +61,7 @@ scanAlphabet ('e':'n':'d':cs) =
 scanAlphabet (_:cs) = 
     scanAlphabet cs
 
+-- old parser
 parseAlphabet' [] = []
 parseAlphabet' (AlphabetToken:ts) = 
     parseAlphabet' ts

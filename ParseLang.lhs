@@ -69,7 +69,7 @@ instance Show Desc where
 
 \end{code}
 
-The remaining functions parse a text file of a lexical description, and deposit that description (if it is well-formed), into our data structure.
+The remaining functions parse a text file of a lexical description, and deposit that description (if it is well-formed) into our data structure.
 
 \begin{code}
 

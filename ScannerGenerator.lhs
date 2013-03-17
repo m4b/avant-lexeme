@@ -2,9 +2,9 @@
 
 This module performs the work necessary to output a scanner, thus making our implementation a scanner \emph{generator}.
 
-From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given string.
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; we then apply Thompson's algorithm, generate a dfa from the nfa (subset construction), and finally apply Hopcroft's minimization algorithm.
 
-We then construct (and output to \verb=stdout=) a Haskell program, which when compiled, will accept only those strings given by  the language description that we were originally given.
+We then construct (and output to \verb=stdout=) a Haskell program, which when compiled, will accept only those strings given by  the language description that we were originally given.  I.e., the scanner takes a file, \verb=<file>=, as a command line argument, and returns the result of the function |match| (our implementation of algorithm 4) applied to the generated DFA and the strings in \verb=<file>=.
 
 
 \begin{code}

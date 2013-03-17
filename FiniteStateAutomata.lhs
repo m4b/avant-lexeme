@@ -7,9 +7,9 @@ The formal definition of an FSA is a 5-tuple, where:
 \begin{enumerate}
 \item a finite set of states (Q)
 \item a finite set of input symbols called the alphabet (\(\Sigma\))
-\item a transition function (\(\delta\) : Q × \(\Sigma\) \(\to\) Q)
+\item a transition function (\(\delta\) : Q \(\times\) \(\Sigma\) \(\to\) Q)
 \item a start state (q0 \(\in\) Q)
-\item a set of accept states (F \(\subset\) Q)
+\item a set of accept states (F \(\subseteq\) Q)
 \end{enumerate}
 
 We tried to have our data structure mirror the mathematical definition of an FSA as closely as possible.
@@ -29,21 +29,6 @@ module FiniteStateAutomata(
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-type DFAMap a = M.Map Int (M.Map a Int)
-type NFAMap a = M.Map Int (S.Set (Maybe a, Int))
-
-class (Show (Elem m)) => Listable m where
-  type Elem m
-  toList :: m -> [(Elem m,Int)]
-
-instance (Show a) => Listable (M.Map a Int) where
-  type Elem (M.Map a Int) = a 
-  toList = M.toList
-
-instance (Show a) => Listable (S.Set (Maybe a, Int)) where
-  type Elem (S.Set (Maybe a, Int)) = Maybe a
-  toList = S.toList
-
 class (Ord (Alpha f), 
        Show (Alpha f), 
        Show f,
@@ -62,6 +47,32 @@ class (Ord (Alpha f),
                          (S.fromList . 
                          concatMap sndList . 
                          M.elems . trans $ fsa)]
+
+data DFA' a = DFA' {alpha  :: S.Set a,
+                    ss     :: DFAMap a,
+                    accept :: S.Set Int,
+                    st     :: Int} deriving (Show, Read)
+
+data NFA' a = NFA' {nalpha  :: S.Set a,
+                    nss     :: NFAMap a, 
+                    naccept :: S.Set Int,
+                    nst     :: Int}
+
+type DFAMap a = M.Map Int (M.Map a Int)
+type NFAMap a = M.Map Int (S.Set (Maybe a, Int))
+
+class (Show (Elem m)) => Listable m where
+  type Elem m
+  toList :: m -> [(Elem m,Int)]
+
+instance (Show a) => Listable (M.Map a Int) where
+  type Elem (M.Map a Int) = a 
+  toList = M.toList
+
+instance (Show a) => Listable (S.Set (Maybe a, Int)) where
+  type Elem (S.Set (Maybe a, Int)) = Maybe a
+  toList = S.toList
+
 
 sndList :: Listable m => m -> [Int]
 sndList = map snd . toList
@@ -99,7 +110,6 @@ pettyPrinter fsa = (putStr $ "alphabet="
 ppfsa :: (FSA f) => f -> IO ()
 ppfsa = pettyPrinter
 
-
 showTransitions :: (FSA f) => f -> [String]
 showTransitions fsa = map showTransition .
                       M.toList . trans $ fsa where
@@ -107,12 +117,7 @@ showTransitions fsa = map showTransition .
         ++ " :: " 
         ++ (show . map showTransition' . toList $ ts) where
     showTransition' (x, to) = (show x) ++ " -> " ++ (show to)
-  
-data DFA' a = DFA' {alpha  :: S.Set a,
-                    ss     :: DFAMap a,
-                    accept :: S.Set Int,
-                    st     :: Int} deriving (Show, Read)
-              
+                
 instance (Ord a, Show a) => FSA (DFA' a) where
   type Alpha (DFA' a) = a
   type FSAVal (DFA' a) = (M.Map a Int)
@@ -121,14 +126,6 @@ instance (Ord a, Show a) => FSA (DFA' a) where
   start = st
   trans = ss
 
-{-instance (Ord a, Show a) => Show (DFA' a) where
-  show dfa = "DFA " ++ (fsaShow dfa)-}
-
-data NFA' a = NFA' {nalpha  :: S.Set a,
-                    nss     :: NFAMap a, 
-                    naccept :: S.Set Int,
-                    nst     :: Int}
-              
 epsilon :: Maybe a              
 epsilon = Nothing
 
