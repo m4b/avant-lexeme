@@ -65,6 +65,7 @@ import ScannerGenerator(scannerGenerator)
 From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; then we apply Thompson's algorithm, then generate a dfa from the nfa, then apply Hopcroft's minimization algorithm, then finally check whether the dfa recognizes a given strin.
 
 \begin{code}
+
 main = do
   contents <- getContents
   putStr $ scannerGenerator contents
