@@ -59,10 +59,9 @@ import System.Environment
 import ScannerGenerator(scannerGenerator)
 
 main = do
-  args <- getArgs
-  let [contents] = args
+  [contents,moduleName] <- getArgs
   file <- readFile contents
-  putStrLn $ scannerGenerator file
+  writeFile (moduleName ++ ".hs") . scannerGenerator moduleName $ file
 
 \end{code}
 

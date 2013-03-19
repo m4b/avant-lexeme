@@ -31,13 +31,8 @@ Thus to obtain obtain an NFA equivalent of the regular expression for the first 
 \begin{code}
 
 type Identifier = String
-data Relevance = Relevant | Irrelevant | Discard deriving (Eq)
+data Relevance = Relevant | Irrelevant | Discard deriving (Eq, Show)
                  
-instance Show Relevance where
-    show (Relevant) = "relevant"
-    show (Irrelevant) = "irrelevant"
-    show (Discard) = "discard"
-
 data Class = Class {
       name :: Identifier,
       regex :: Regex Char,
