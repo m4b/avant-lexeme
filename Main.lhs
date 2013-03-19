@@ -22,7 +22,7 @@
 
 \section{Introduction}
 
-This is the final report for project 1, CS454/CS554, on lexical analysis.  It includes all of the source code for our Haskell implementation of a scanner generator.  Our team consists of the authors listed above.  In preparing this document, the work was split equally among the members of the group, in addition to the coding and testing duties.  Approximately 58 man hours went into finishing the project.
+This is the final report for project 1, CS454/CS554, on lexical analysis.  It includes all of the source code for our Haskell implementation of a scanner generator.  Our team consists of the authors listed above.  In preparing this document, the work was split equally among the members of the group, in addition to the coding and testing duties.  Approximately 60 man hours went into finishing the project.
 
 Our first design decision was to use Haskell's literate mode to prepare all of our code.  Secondly, we decided to use the distributed revision control software \verb=git= for collaborative coding.
 
@@ -49,7 +49,7 @@ Lastly, we decided to write a scanner generator for our final output, instead of
 
 \section{Module: Main.lhs}
 
-The final module, |Main|, puts everything together, by simply calling the function |scannerGenerator| on a lexical description to output a scanner in Haskell source code to \verb=stdout=.
+The final module, |Main|, puts everything together, by simply calling the function |scannerGenerator| on a lexical description to output a scanner \emph{module} in Haskell source code.
 
 \begin{code}
 
@@ -61,16 +61,11 @@ import ScannerGenerator(scannerGenerator)
 main = do
   [contents,moduleName] <- getArgs
   file <- readFile contents
-  writeFile (moduleName ++ ".hs") . scannerGenerator moduleName $ file
+  writeFile (moduleName ++ ".hs") .
+   scannerGenerator moduleName $ file
 
 \end{code}
 
-Thus, given a lexical description for a language \(\mathcal{L}\) in a file \verb=<desc.txt>=, a string in file \verb=<string.txt>= (which may or may not be a string in the language \(\mathcal{L}\)), and the binary \verb=<gen>= compiled from our Haskell source code, the following sequence of commands in a GNU/Linux environment will produce a scanner for \(\mathcal{L}\) which generate tokens (if possible) from \verb=<string.txt>=:
-
-\begin{verbatim}
-./gen desc.txt > scanner.hs
-ghc --make scanner.hs -o scanner
-./scanner string.txt
-\end{verbatim}
+Thus, given a lexical description for a language \(\mathcal{L}\) in a file \verb=<desc.txt>=, a string in file \verb=<string.txt>= (which may or may not be a string in the language \(\mathcal{L}\)), and the binary \verb=<gen>= compiled from our Haskell source code, the command \verb=./gen desc.txt LexDesc= (in a GNU/Linux environment, for example) will produce a scanner module, LexDesc.hs, for \(\mathcal{L}\) which will generate tokens (if possible) from \verb=<string.txt>=, given a suitable parser.
 
 \end{document}
