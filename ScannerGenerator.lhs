@@ -2,7 +2,11 @@
 
 This module performs the work necessary to output a scanner, thus making our implementation a scanner \emph{generator}.
 
+CHANGE ALL OF THIS CAUSE IT'S NOT TRUE ANYMORE
+
 From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; we then apply Thompson's algorithm, generate a dfa from the nfa (subset construction), and finally apply Hopcroft's minimization algorithm.
+
+OK FROM HERE ON OUT
 
 We then construct (and output to \verb=stdout=) a Haskell program, which when compiled, will accept only those strings given by  the language description that we were originally given.  I.e., the scanner takes a file, \verb=<file>=, as a command line argument, and returns the result of the function |match| (our implementation of algorithm 4) applied to the generated DFA and the strings in \verb=<file>=.
 
@@ -25,8 +29,6 @@ alternate (c:cs) =
 capitalize :: String -> String
 capitalize [] = []
 capitalize (s:ss) = (toUpper s):ss
-
-data Kind = BaseToken Char | SuffixToken Char | WhitespaceToken Char
 
 makeClasses :: [Class] -> String
 makeClasses ([]) = 

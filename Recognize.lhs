@@ -1,9 +1,9 @@
 \subsection{Recognize a string for a given DFA}
 
-In this module we test whether a ``string'' from an alphabet for a DFA is accepted by that DFA or not.
+In this module we test whether a ``string'' from an alphabet for a DFA is accepted by that DFA or not.  It also includes the function tokenize which is utilized by the generated scanner in tokenizing a string for a particular lexical description.
 
 \begin{code}
-module Recognize(match, match') where
+module Recognize(match, match',tokenize) where
 
 import FiniteStateAutomata
 import qualified Data.Map as M
@@ -29,6 +29,7 @@ match dfa = match' dfa (start dfa) where
           Just next -> match' dfa next cs
 
 
+
 match' :: (Ord a, Show a) => DFA' a -> a -> (Bool, Maybe (DFA' a))
 match' dfa@(DFA' alpha ss accept st) sym = (isAccepting, dfa') where
   curr = start dfa
@@ -38,5 +39,13 @@ match' dfa@(DFA' alpha ss accept st) sym = (isAccepting, dfa') where
   isAccepting = if isNothing nextStart then False else S.member (fromJust nextStart) (accepting dfa)
 
 --func :: (Ord a, Show a) => DFA' a -> a -> (
+
+\end{code}
+
+The second function |tokenize| matches a dfa against a string, and produces a token if possible, as required for the final generated scanner.
+
+\begin{code}
+
+tokenize dfa = undefined
 
 \end{code}
