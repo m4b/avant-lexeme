@@ -31,7 +31,7 @@ Thus to obtain obtain an NFA equivalent of the regular expression for the first 
 \begin{code}
 
 type Identifier = String
-data Relevance = Relevant | Irrelevant | Discard 
+data Relevance = Relevant | Irrelevant | Discard deriving (Eq)
                  
 instance Show Relevance where
     show (Relevant) = "relevant"
@@ -41,7 +41,7 @@ instance Show Relevance where
 data Class = Class {
       name :: Identifier,
       regex :: Regex Char,
-      relevance :: Relevance}
+      relevance :: Relevance} deriving Eq
 
 instance Show Class where
     show c = "class " ++ name c ++ " " ++

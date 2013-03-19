@@ -13,7 +13,7 @@ data Regex a = Alt (Regex a) (Regex a)
              | Concat (Regex a) (Regex a)
              | Kleene (Regex a)
              | Term a
-             | Empty deriving Show
+             | Empty deriving (Eq,Show)
 
 \end{code}
 
