@@ -1,8 +1,18 @@
+\subsection{Scanner Generator}
+
+This module performs the work necessary to output a scanner, thus making our implementation a scanner \emph{generator}.
+
+From a given lexical description, we first alternate all of the regular expressions found in the classes, then kleene star the entire expression; we then apply Thompson's algorithm, generate a dfa from the nfa (subset construction), and finally apply Hopcroft's minimization algorithm.
+
+We then construct (and output to \verb=stdout=) a Haskell program, which when compiled, will accept only those strings given by  the language description that we were originally given.  I.e., the scanner takes a file, \verb=<file>=, as a command line argument, and returns the result of the function |match| (our implementation of algorithm 4) applied to the generated DFA and the strings in \verb=<file>=.
+
+
 \begin{code}
 module ScannerGenerator(scannerGenerator) where
 import Regex
 import Algorithms
 import Input
+import System.Environment(getArgs)
 
 alternate :: [Class] -> Regex Char
 alternate [] = Empty
@@ -17,9 +27,14 @@ scannerGenerator desc = program where
   program = "module Main where\n" ++
             "import FiniteStateAutomata(DFA'())\n" ++
             "import Recognize(match)\n" ++
+            "import System.Environment(getArgs)\n" ++
             "dfa :: DFA' Char\n" ++ 
-            "dfa = read \"" ++ (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
-            "main = do { contents <- getContents; putStrLn $ (show (match dfa contents)) }"
+            "dfa = read \"" ++ 
+            (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
+            "main = do \n \t args <- getArgs\n" ++
+            "\t let [contents] = args\n" ++  
+            "\t string <- readFile contents\n" ++
+            "\t putStrLn $ (show (match dfa string))\n"
 
 replace :: (Eq a) => a -> [a] -> [a] -> [a]
 replace a b = concatMap replace' where

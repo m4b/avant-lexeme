@@ -4,7 +4,10 @@ This module provides functions for lexing and parsing alphabets found in input f
 
 \begin{code}
 
-module Alphabet(parseElement, parseAlphabet, getAlphabet, gotoGetAlphabet) where
+module Alphabet(parseElement, 
+                parseAlphabet, 
+                getAlphabet, 
+                gotoGetAlphabet) where
 
 import Data.List
 import Parselib
@@ -13,18 +16,18 @@ import Data.Char (ord)
 
 \end{code}
 
-**TODO**
-
 A formal description of an alphabet is:
 \begin{verbatim}
 
-alphabet -> alphabet_keyword elements end_keyword
-elements -> 'subset_ascii
-elements -> elements
-subset_ascii -> 
+Alphabet -> alphabet Elements end;
+Elements -> 'Subset_ascii
+Elements -> Elements
+Subset_ascii -> 
              a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|
              w|x|y|z|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|
-             T|U|V|W|X|Y|Z|\n|\t|\r| |
+             T|U|V|W|X|Y|Z|\n|\t|\r| |+|-|=|_|)|(|*|&|^|%|$|
+             #|@|!|~|`|"|'|;|:|/|?|.|>|,|<|]|[|}|{|||\|0|1|2|
+             3|4|5|6|7|8|9|\a|\b|\v|\f|\r
 
 \end{verbatim}
 
@@ -47,6 +50,7 @@ gotoAlphabet [] =  []
 gotoAlphabet cs | isPrefixOf "alphabet" cs = cs
 gotoAlphabet (c:cs) =  gotoAlphabet cs
 
+-- old scanner
 scanAlphabet [] = []
 scanAlphabet ('a':'l':'p':'h':'a':'b':'e':'t':cs) = 
     AlphabetToken:scanAlphabet cs
@@ -57,6 +61,7 @@ scanAlphabet ('e':'n':'d':cs) =
 scanAlphabet (_:cs) = 
     scanAlphabet cs
 
+-- old parser
 parseAlphabet' [] = []
 parseAlphabet' (AlphabetToken:ts) = 
     parseAlphabet' ts

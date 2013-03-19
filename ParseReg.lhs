@@ -2,7 +2,9 @@
 
 This module inputs, lexes, and parses a regular expression from a text file.  It uses Hutton's Parselib library.
 
-Parsing is divided into a function for each regular expression.  It handles ascii spaces, newlines, tabs, etc.  I.e., the printable subset of ascii, as required by the spec.
+Parsing is divided into a function for each regular expression.  It handles ascii spaces, newlines, tabs, etc.  In other words, the printable subset of ascii, as required by the spec.
+
+It uses the functions provided by the |Alphabet| module to lex elements from the alphabet properly (escapes, newlines, etc.), and additionally, correctly error checks whether a terminal symbol is an element of the alphabet provided in either a regular expression file or a lexical description.
 
 \begin{code}
 

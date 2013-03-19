@@ -30,4 +30,4 @@ instance Show (Regex Char) where
     show (Empty)        = "\\epsilon"
 \end{verbatim}
 
-However, it was determined that writing a lexer generator would be easier if we used the default show for regular expressions.
+However, it was determined that writing a scanner generator would be easier if we used the default show for regular expressions.
