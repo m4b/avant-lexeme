@@ -12,13 +12,42 @@ module ScannerGenerator(scannerGenerator) where
 import Regex
 import Algorithms
 import Input
+
 import System.Environment(getArgs)
+import Data.Char(toUpper)
 
 alternate :: [Class] -> Regex Char
 alternate [] = Empty
 alternate (c:[]) = regex c
 alternate (c:cs) =
     Alt (regex c) (alternate cs)
+
+capitalize :: String -> String
+capitalize [] = []
+capitalize (s:ss) = (toUpper s):ss
+
+data Kind = BaseToken Char | SuffixToken Char | WhitespaceToken Char
+
+makeClasses :: [Class] -> String
+makeClasses ([]) = 
+    "data Token = Token\n" ++
+    "     {token :: Kind,\n" ++
+    "      location :: Location,\n" ++
+    "      relevance :: Relevance}\n"
+makeClasses (cl:cls) = 
+    let blurb = if cls == [] then "\n" else " |\n" in
+    "\t" ++ (capitalize . name $ cl) ++ "Token Char" ++
+    blurb ++
+    makeClasses cls
+    
+makeTokenData :: String -> String
+makeTokenData s = 
+    let tokenData =
+            "import ParseLang(Relevance(..))\n\n" ++
+            "type Location = Int\n" ++
+            "data Kind =\n" ++ 
+            (makeClasses . classes . getLang $ s) in
+    tokenData
 
 scannerGenerator :: String -> String
 scannerGenerator desc = program where
@@ -28,6 +57,7 @@ scannerGenerator desc = program where
             "import FiniteStateAutomata(DFA'())\n" ++
             "import Recognize(match)\n" ++
             "import System.Environment(getArgs)\n" ++
+            makeTokenData desc ++
             "dfa :: DFA' Char\n" ++ 
             "dfa = read \"" ++ 
             (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
