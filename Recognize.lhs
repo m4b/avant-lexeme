@@ -3,11 +3,12 @@
 In this module we test whether a ``string'' from an alphabet for a DFA is accepted by that DFA or not.
 
 \begin{code}
-module Recognize(match) where
+module Recognize(match, match') where
 
 import FiniteStateAutomata
 import qualified Data.Map as M
 import qualified Data.Set as S
+import Data.Maybe
 
 \end{code}
 
@@ -27,5 +28,15 @@ match dfa = match' dfa (start dfa) where
           Nothing -> False
           Just next -> match' dfa next cs
 
+
+match' :: (Ord a, Show a) => DFA' a -> a -> (Bool, Maybe (DFA' a))
+match' dfa@(DFA' alpha ss accept st) sym = (isAccepting, dfa') where
+  curr = start dfa
+  lookup = M.lookup curr (trans dfa)
+  nextStart = if isNothing lookup then Nothing else M.lookup sym (fromJust lookup)
+  dfa' = if isNothing nextStart then Nothing else Just (DFA' alpha ss accept (fromJust nextStart))
+  isAccepting = if isNothing nextStart then False else S.member (fromJust nextStart) (accepting dfa)
+
+--func :: (Ord a, Show a) => DFA' a -> a -> (
 
 \end{code}
