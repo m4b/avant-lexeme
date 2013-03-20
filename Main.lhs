@@ -65,10 +65,9 @@ From a given lexical description, we first alternate all of the regular expressi
 \begin{code}
 
 main = do
-  args <- getArgs
-  let [contents] = args
+  [contents,moduleName] <- getArgs
   file <- readFile contents
-  putStrLn $ scannerGenerator file
+  writeFile (moduleName ++ ".hs") . scannerGenerator moduleName $ file
 
 \end{code}
 

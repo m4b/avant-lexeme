@@ -17,6 +17,8 @@ import Regex
 import Algorithms
 import Input
 
+import Data.List(intersperse)
+
 import System.Environment(getArgs)
 import Data.Char(toUpper)
 
@@ -30,43 +32,70 @@ capitalize :: String -> String
 capitalize [] = []
 capitalize (s:ss) = (toUpper s):ss
 
-makeClasses :: [Class] -> String
-makeClasses ([]) = 
-    "data Token = Token\n" ++
-    "     {token :: Kind,\n" ++
-    "      location :: Location,\n" ++
-    "      relevance :: Relevance}\n"
-makeClasses (cl:cls) = 
-    let blurb = if cls == [] then "\n" else " |\n" in
-    "\t" ++ (capitalize . name $ cl) ++ "Token Char" ++
-    blurb ++
-    makeClasses cls
-    
-makeTokenData :: String -> String
-makeTokenData s = 
-    let tokenData =
-            "import ParseLang(Relevance(..))\n\n" ++
-            "type Location = Int\n" ++
-            "data Kind =\n" ++ 
-            (makeClasses . classes . getLang $ s) in
-    tokenData
+writeImports :: String -> String
+writeImports moduleName = "module " ++ moduleName ++ "(scan) where \n" ++ 
+                          concat ["import FiniteStateAutomata(DFA'(..))\n",
+                                  "import ParseLang(Relevance(..))\n",
+                                  "import Recognize(tokenize)\n",
+                                  "import Data.List(maximumBy,lookup)\n",
+                                  "import Data.Maybe(fromJust)\n",
+                                  "type Location = Int\n"]
 
-scannerGenerator :: String -> String
-scannerGenerator desc = program where
-  regex   = Kleene . alternate . classes . getLang $ desc
-  dfa     = hopcroft . subsetConstruction . thompson $ regex
-  program = "module Main where\n" ++
-            "import FiniteStateAutomata(DFA'())\n" ++
-            "import Recognize(match)\n" ++
-            "import System.Environment(getArgs)\n" ++
-            makeTokenData desc ++
-            "dfa :: DFA' Char\n" ++ 
-            "dfa = read \"" ++ 
-            (replace '"' "\\\"") (show dfa) ++ "\"\n" ++
-            "main = do \n \t args <- getArgs\n" ++
-            "\t let [contents] = args\n" ++  
-            "\t string <- readFile contents\n" ++
-            "\t putStrLn $ (show (match dfa string))\n"
+writeClasses :: [Class] -> String
+writeClasses classes = "data Class = " ++ names ++ " deriving Show\n" where
+  names = concat . intersperse " | " . map (capitalize . name) $ classes
+
+writeTokens :: String
+writeTokens = "data Token = Token {kind :: Class, relevance :: Relevance, location :: Location, token :: String} deriving Show\n"
+
+writeDFA :: Class -> String
+writeDFA c = name' ++ " :: DFA' Char\n" ++
+             name' ++ " = read \"" ++ dfa ++ "\"\n" where
+  name' = name c
+  dfa   = replace '"' "\\\"" . show . hopcroft . subsetConstruction . thompson . regex $ c
+  
+writeDFAs :: [Class] -> String
+writeDFAs cs = "dfas :: [DFA' Char]\n" ++
+               "dfas = " ++ names ++ "\n" where
+  names = replace '"' "" . show . map name $ cs
+
+writeConstructor :: Class -> String
+writeConstructor c = name' ++ " :: Location -> String -> Token\n" ++
+                     name' ++ " = Token " ++ capName ++ " " ++ rel ++ "\n" where
+  name' = name c ++ "'"     
+  capName = capitalize . name $ c
+  rel = show . relevance $ c
+
+writeConstructors :: [Class] -> String
+writeConstructors cs = "constructors :: [Location -> String -> Token]\n" ++
+                       "constructors = " ++ names ++ "\n" where
+  names = replace '"' "" . show . map ( (++ "'") . name) $ cs
+
+writeScan = concat ["table :: [(DFA' Char, Location -> String -> Token)]\n",
+                    "table = zip dfas constructors\n",
+                    "getToken :: DFA' Char -> Location -> [Char] -> Token\n",
+                    "getToken dfa loc token = construct loc token where\n",
+                    "  construct = fromJust . lookup dfa $ table\n",
+                    "scan :: String -> [Token]\n",
+                    "scan = scan' [] where\n",
+                    "  scan' :: [Token] -> String -> [Token]\n",
+                    "  scan' acc s = if done then reverse (t:acc) else reCURSE where\n",
+                    "    reCURSE = if err then error \"Could not parse.\" else scan' (t:acc) rem\n",
+                    "    done = rem == []\n",
+                    "    err = consumed == 0\n",
+                    "    list = zip dfas . map (tokenize s) $ dfas\n",
+                    "    (dfa,(consumed, token, rem)) = maximumBy compareTrip list\n",
+                    "    t = getToken dfa consumed token\n",
+                    "    compareTrip (_,(i,_,_)) (_,(i2,_,_)) = compare i i2"]
+
+scannerGenerator :: String -> String -> String
+scannerGenerator moduleName desc = program where
+  (Desc _ _ classes) = getLang desc
+  dfas = concatMap writeDFA classes
+  constructors = concatMap writeConstructor classes
+  program = writeImports moduleName ++ writeClasses classes ++ writeTokens ++ dfas ++ writeDFAs classes ++ constructors ++ writeConstructors classes ++ writeScan
+
+
 
 replace :: (Eq a) => a -> [a] -> [a] -> [a]
 replace a b = concatMap replace' where

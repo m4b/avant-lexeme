@@ -51,12 +51,12 @@ class (Ord (Alpha f),
 data DFA' a = DFA' {alpha  :: S.Set a,
                     ss     :: DFAMap a,
                     accept :: S.Set Int,
-                    st     :: Int} deriving (Show, Read)
+                    st     :: Int} deriving (Show, Read, Eq)
 
 data NFA' a = NFA' {nalpha  :: S.Set a,
                     nss     :: NFAMap a, 
                     naccept :: S.Set Int,
-                    nst     :: Int}
+                    nst     :: Int} 
 
 type DFAMap a = M.Map Int (M.Map a Int)
 type NFAMap a = M.Map Int (S.Set (Maybe a, Int))
