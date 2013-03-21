@@ -68,4 +68,12 @@ main = do
 
 Thus, given a lexical description for a language \(\mathcal{L}\) in a file \verb=<desc.txt>=, a string in file \verb=<string.txt>= (which may or may not be a string in the language \(\mathcal{L}\)), and the binary \verb=<gen>= compiled from our Haskell source code, the command \verb=./gen desc.txt LexDesc= (in a GNU/Linux environment, for example) will produce a scanner module, LexDesc.hs, for \(\mathcal{L}\) which will generate tokens (if possible) from \verb=<string.txt>=, for a suitable parser and |main| function.
 
+Two demo binaries have been provided, \verb=demo1= and \verb=demo2=, which are scanners for the languages given in \verb=lexdesc1.txt= and \verb=lexdesc2.txt=, respectively.
+
+The binaries simply take an ASCII text file as a command line argument, and print the tokens it consumes while reading the string in the file.
+
+The binaries were compiled by simply importing different scanners, i.e., replacing |Scanner1| etc., in the following with the result of running our scanner generator on a lexical description:
+
+%include Demo.lhs
+
 \end{document}
