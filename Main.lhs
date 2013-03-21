@@ -28,7 +28,7 @@ Our first design decision was to use Haskell's literate mode to prepare all of o
 
 We decided to write each algorithm in the assignment as its own module, in addition to modules describing finite state automata (FSA), regular expressions, and similarly for the file input/output.
 
-Lastly, we decided to write a scanner generator for our final output, instead of a scanner ``interpeter''.  That is, we parse a lexical description, and return a Haskell source file to be compiled.  Once suitably compiled, the binary scans text files and produces a stream of tokens for the language given in the lexical description.
+Lastly, we decided to write a scanner generator for our final output, instead of a scanner ``interpeter''.  That is, we parse a lexical description, and return a Haskell module to be compiled with an appropriate parser.  Once suitably compiled, the binary scans text files and produces a stream of tokens for the language given in the lexical description.
 
 %include FiniteStateAutomata.lhs
 %include Regex.lhs
@@ -66,6 +66,6 @@ main = do
 
 \end{code}
 
-Thus, given a lexical description for a language \(\mathcal{L}\) in a file \verb=<desc.txt>=, a string in file \verb=<string.txt>= (which may or may not be a string in the language \(\mathcal{L}\)), and the binary \verb=<gen>= compiled from our Haskell source code, the command \verb=./gen desc.txt LexDesc= (in a GNU/Linux environment, for example) will produce a scanner module, LexDesc.hs, for \(\mathcal{L}\) which will generate tokens (if possible) from \verb=<string.txt>=, given a suitable parser.
+Thus, given a lexical description for a language \(\mathcal{L}\) in a file \verb=<desc.txt>=, a string in file \verb=<string.txt>= (which may or may not be a string in the language \(\mathcal{L}\)), and the binary \verb=<gen>= compiled from our Haskell source code, the command \verb=./gen desc.txt LexDesc= (in a GNU/Linux environment, for example) will produce a scanner module, LexDesc.hs, for \(\mathcal{L}\) which will generate tokens (if possible) from \verb=<string.txt>=, for a suitable parser and |main| function.
 
 \end{document}

@@ -1,4 +1,4 @@
-\section{Hopcroft's Algorithm}
+\subsection{Hopcroft's Algorithm}
 
 In this module we provide our solution for minimizing a given deterministic finite state automaton.
 

@@ -30,13 +30,27 @@ match dfa = match' dfa (start dfa) where
 
 
 
-match' :: (Ord a, Show a) => DFA' a -> a -> (Bool, Maybe (DFA' a))
-match' dfa@(DFA' alpha ss accept st) sym = (isAccepting, dfa') where
+match' :: (Ord a, Show a) => 
+ DFA' a -> a -> (Bool, Maybe (DFA' a))
+match' dfa@(DFA' alpha ss accept st) sym = 
+ (isAccepting, dfa') where
   curr = start dfa
   lookup = M.lookup curr (trans dfa)
-  nextStart = if isNothing lookup then Nothing else M.lookup sym (fromJust lookup)
-  dfa' = if isNothing nextStart then Nothing else Just (DFA' alpha ss accept (fromJust nextStart))
-  isAccepting = if isNothing nextStart then False else S.member (fromJust nextStart) (accepting dfa)
+  nextStart = 
+   if isNothing lookup then 
+    Nothing 
+   else 
+    M.lookup sym (fromJust lookup)
+  dfa' = 
+   if isNothing nextStart then 
+    Nothing 
+   else 
+    Just (DFA' alpha ss accept (fromJust nextStart))
+  isAccepting = 
+   if isNothing nextStart then 
+    False 
+   else 
+    S.member (fromJust nextStart) (accepting dfa)
 
 \end{code}
 
@@ -46,19 +60,31 @@ The second function |tokenize| matches a dfa against a string, and produces a to
 
 type Match a = (Int, [a], [a])
 
-tokenize :: (Ord a, Show a) => [a] -> DFA' a -> (Int, [a], [a])
-tokenize toScan dfa = tokenize' (0, [], toScan) (0, [], toScan) dfa toScan where
-  tokenize' :: (Ord a, Show a) => Match a -> Match a -> DFA' a -> [a] -> (Int, [a], [a])
-  tokenize' (consumed, token, rem) _ _ [] = (consumed, reverse token, rem)
-  tokenize' currentMatch candidate dfa (x:xs) = if done then finalize currentMatch else recurse where
+tokenize :: (Ord a, Show a) => 
+         [a] -> DFA' a -> (Int, [a], [a])
+tokenize toScan dfa = 
+ tokenize' (0, [], toScan) (0, [], toScan) dfa toScan where
+  tokenize' :: (Ord a, Show a) => 
+   Match a -> Match a -> DFA' a -> [a] -> (Int, [a], [a])
+  tokenize' (consumed, token, rem) _ _ [] = 
+   (consumed, reverse token, rem)
+  tokenize' currentMatch candidate dfa (x:xs) = 
+   if done then 
+    finalize currentMatch 
+   else recurse where
     done = isNothing dfa'
     (consumed, acc, _) = candidate
     (matches, dfa') = match' dfa x
     acc' = (x:acc)
     consumed' = consumed + 1
     candidate' = (consumed', acc', xs)
-    currentMatch' = if matches then candidate' else currentMatch
-    recurse = tokenize' currentMatch' candidate' (fromJust dfa') xs
+    currentMatch' = 
+     if matches then 
+      candidate' 
+     else 
+      currentMatch
+    recurse = tokenize' currentMatch' 
+               candidate' (fromJust dfa') xs
     finalize (c, t, m) = (c, reverse t, m)
     
 \end{code}
